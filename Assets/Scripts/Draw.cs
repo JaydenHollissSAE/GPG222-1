@@ -8,6 +8,7 @@ public class Draw : NetworkBehaviour
 {
     public Camera m_camera;
     public GameObject brush;
+    private int platform = 1;
     private Vector3 control;
     public GameObject drawings;
     public GameObject drawingGroup;
@@ -24,7 +25,7 @@ public class Draw : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        m_camera = Camera.main;
+        m_camera = GetComponent<Camera>();
 
         if (drawings == null) drawings = DrawingsFolder.instance.gameObject;
 
@@ -49,20 +50,20 @@ public class Draw : NetworkBehaviour
         control = Input.mousePosition;
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            CreateNewGroup_Rpc(drawingGroup);
+            CreateNewGroup_Rpc();
             CreateBrush_Rpc(m_camera.ScreenToWorldPoint(control));
         }
         else if (Input.GetKey(KeyCode.Mouse0))
         {
-            PointToMousePos(control);
+            PointToMousePos_Rpc();
         }
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
-            Erase(control);
+            Erase_Rpc();
         }
         else if (Input.GetKey(KeyCode.Mouse1))
         {
-            Erase(control);
+            Erase_Rpc();
         }
         else
         {
@@ -72,18 +73,9 @@ public class Draw : NetworkBehaviour
     }
 
 
-    void SetNewGroup(GameObject group)
-    {
-        activeDrawingGroup = group;
-        
-    }
-
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void CreateNewGroup_Rpc(GameObject drawingGroup)
+    void CreateNewGroup_Rpc()
     {
-        //GameObject localActiveDrawingGroup = Instantiate(drawingGroup);
-        //SetNewGroup(localActiveDrawingGroup);
-        //activeDrawingGroup = localActiveDrawingGroup;
         activeDrawingGroup = Instantiate(drawingGroup);
     }
 
@@ -111,56 +103,50 @@ public class Draw : NetworkBehaviour
 
     }
 
-
-
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void AddAPoint_Rpc(Vector2 pointPos, LineRenderer localCurrentLineRenderer)
+    void AddAPoint_Rpc(Vector2 pointPos)
     {
         //Debug.Log(currentLineRenderer);
         //Debug.Log(currentLineRenderer.positionCount);
         //currentLineRenderer.positionCount++;
 
-        if (localCurrentLineRenderer.positionCount >= 2)
+        if (currentLineRenderer.positionCount >= 2)
         {
             //CreateNewGroup();
-            CreateBrush_Rpc(localCurrentLineRenderer.GetPosition(1));
+            CreateBrush_Rpc(currentLineRenderer.GetPosition(1));
         }
 
 
-        int positionIndex = localCurrentLineRenderer.positionCount - 1;
-        localCurrentLineRenderer.SetPosition(positionIndex, pointPos);
+        int positionIndex = currentLineRenderer.positionCount - 1;
+        currentLineRenderer.SetPosition(positionIndex, pointPos);
     }
 
 
-    void PointToMousePos(Vector3 mouseInput)
+    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
+    void PointToMousePos_Rpc()
     {
-        Vector2 mousePos = m_camera.ScreenToWorldPoint(mouseInput);
+        Vector2 mousePos = m_camera.ScreenToWorldPoint(control);
         //Debug.Log(mousePos);
         if (lastPos != mousePos)
         {
             //Debug.Log("Add pos");
-            AddAPoint_Rpc(mousePos, currentLineRenderer);
+            AddAPoint_Rpc(mousePos);
             lastPos = mousePos;
         }
     }
 
-    void Erase(Vector3 mousePos)
+    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
+    void Erase_Rpc()
     {
-        Ray ray = Camera.main.ScreenPointToRay(mousePos);
+        Ray ray = Camera.main.ScreenPointToRay(control);
         RaycastHit hitData_for_the_ray;
         if (Physics.Raycast(ray, out hitData_for_the_ray))
         {
             Debug.Log(hitData_for_the_ray);
             GameObject theGameObjectHitByRay = hitData_for_the_ray.collider.gameObject;
-            DestroyHit_Rpc(theGameObjectHitByRay);
+            Destroy(theGameObjectHitByRay);
         }
 
-    }
-
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void DestroyHit_Rpc(GameObject hitObject)
-    {
-        Destroy(hitObject);
     }
 
 
