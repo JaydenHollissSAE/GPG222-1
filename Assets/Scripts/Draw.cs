@@ -76,7 +76,7 @@ public class Draw : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = true)]
     void ServerProcessing_Rpc(GameObject brush, GameObject drawings, GameObject activeDrawingGroup, Vector2 oldMousePos)
     {
         GameObject brushInstance = Instantiate(brush);
