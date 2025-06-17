@@ -10,7 +10,7 @@ public class Draw : NetworkBehaviour
     public Camera m_camera;
     public GameObject brush;
     private int platform = 1;
-    private Vector3 control;
+    //private Vector3 GetControl();
     public GameObject drawings;
     public GameObject drawingGroup;
     private GameObject activeDrawingGroup;
@@ -26,7 +26,7 @@ public class Draw : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        m_camera = GetComponent<Camera>();
+        m_camera = Camera.main;
 
         if (drawings == null) drawings = DrawingsFolder.instance.gameObject;
 
@@ -48,15 +48,15 @@ public class Draw : NetworkBehaviour
 
     void Drawing()
     {
-        control = Input.mousePosition;
+        
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            CreateNewGroup();
-            ServerProcessing_Rpc(brush, drawings, activeDrawingGroup, m_camera.ScreenToWorldPoint(control));
+            CreateNewGroup_Rpc();
+            ServerProcessing_Rpc( m_camera.ScreenToWorldPoint(GetControl()));
         }
         else if (Input.GetKey(KeyCode.Mouse0))
         {
-            PointToMousePos_Rpc();
+            ServerProcessing_Rpc(m_camera.ScreenToWorldPoint(GetControl()));
         }
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
@@ -72,14 +72,21 @@ public class Draw : NetworkBehaviour
         }
     }
 
+    Vector3 GetControl()
+    {
+        return Input.mousePosition;
+    }
+
+
 
 
 
 
     [Rpc(SendTo.Server, RequireOwnership = true)]
-    void ServerProcessing_Rpc(GameObject brush, GameObject drawings, GameObject activeDrawingGroup, Vector2 oldMousePos)
+    void ServerProcessing_Rpc(Vector2 oldMousePos)
     {
         GameObject brushInstance = Instantiate(brush);
+        brushInstance.GetComponent<NetworkObject>().Spawn();
         brushInstance.transform.SetParent(activeDrawingGroup.transform);
         if (drawings != null) activeDrawingGroup.transform.SetParent(drawings.transform);
 
@@ -89,28 +96,27 @@ public class Draw : NetworkBehaviour
         //Debug.Log(currentLineRenderer);
 
         //because you gotta have 2 points to start a line renderer, 
-        Vector2 mousePos = m_camera.ScreenToWorldPoint(control);
+        Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
         if (oldMousePos == null)
         {
             oldMousePos = mousePos;
         }
 
-        currentLineRenderer.SetPosition(0, oldMousePos);
+        
+
+        currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);
-        PlayerDrawSpawn_Rpc(brushInstance);
+        lastPos = mousePos;
+        currentDrawing = brushInstance;
+        CreateNewGroup_Rpc();
+        //PlayerDrawSpawn_Rpc(brushInstance.GetComponent<NetworkObject>());
     }
 
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void PlayerDrawSpawn_Rpc(GameObject fedObject)
-    {
-        Instantiate(fedObject);
-        currentDrawing = fedObject;
-        CreateNewGroup();
-    }
 
 
-    void CreateNewGroup()
+    [Rpc(SendTo.ClientsAndHost, RequireOwnership = true)]
+    void CreateNewGroup_Rpc()
     {
         activeDrawingGroup = Instantiate(drawingGroup);
     }
@@ -126,10 +132,11 @@ public class Draw : NetworkBehaviour
         if (currentLineRenderer.positionCount >= 2)
         {
             //CreateNewGroup();
-            ServerProcessing_Rpc(brush, drawings, activeDrawingGroup, currentLineRenderer.GetPosition(1));
+            ServerProcessing_Rpc(currentLineRenderer.GetPosition(1));
         }
 
 
+        currentLineRenderer.SetPosition(0, lastPos);
         int positionIndex = currentLineRenderer.positionCount - 1;
         currentLineRenderer.SetPosition(positionIndex, pointPos);
     }
@@ -138,20 +145,20 @@ public class Draw : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void PointToMousePos_Rpc()
     {
-        Vector2 mousePos = m_camera.ScreenToWorldPoint(control);
+        Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
         //Debug.Log(mousePos);
         if (lastPos != mousePos)
         {
             //Debug.Log("Add pos");
-            AddAPoint_Rpc(mousePos);
-            lastPos = mousePos;
+            //AddAPoint_Rpc(mousePos);
+            
         }
     }
 
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void Erase_Rpc()
     {
-        Ray ray = Camera.main.ScreenPointToRay(control);
+        Ray ray = Camera.main.ScreenPointToRay(GetControl());
         RaycastHit hitData_for_the_ray;
         if (Physics.Raycast(ray, out hitData_for_the_ray))
         {

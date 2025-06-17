@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Liner : MonoBehaviour
+public class Liner : NetworkBehaviour
 {
     LineRenderer lr;
     Color[] colors = { Color.red, Color.black };
     int curColor = 0;
-    void Start()
+    public override void OnNetworkSpawn()
     {
-        lr = this.gameObject.GetComponent<LineRenderer>();
+        base.OnNetworkSpawn();
+        lr = GetComponent<LineRenderer>();
         //lr.material = new Material(Shader.Find("Sprites/Default"));
         //lr.material.color = colors[curColor];
         lr.startWidth = 1f;
