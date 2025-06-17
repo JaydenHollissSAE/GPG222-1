@@ -52,11 +52,11 @@ public class Draw : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             CreateNewGroup_Rpc();
-            ServerProcessing_Rpc( m_camera.ScreenToWorldPoint(GetControl()));
+            ServerProcessing_Rpc(true);
         }
         else if (Input.GetKey(KeyCode.Mouse0))
         {
-            ServerProcessing_Rpc(m_camera.ScreenToWorldPoint(GetControl()));
+            ServerProcessing_Rpc();
         }
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
@@ -82,8 +82,8 @@ public class Draw : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.Server, RequireOwnership = true)]
-    void ServerProcessing_Rpc(Vector2 oldMousePos)
+    [Rpc(SendTo.Server, RequireOwnership = false)]
+    void ServerProcessing_Rpc(bool newItem = false)
     {
         GameObject brushInstance = Instantiate(brush);
         brushInstance.GetComponent<NetworkObject>().Spawn();
@@ -97,16 +97,13 @@ public class Draw : NetworkBehaviour
 
         //because you gotta have 2 points to start a line renderer, 
         Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
-        if (oldMousePos == null)
-        {
-            oldMousePos = mousePos;
-        }
 
-        
+        if (newItem) lastPos = mousePos;
 
         currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);
         lastPos = mousePos;
+        brushInstance.GetComponent<LineCollider>().GenerateMesh_Rpc();
         currentDrawing = brushInstance;
         CreateNewGroup_Rpc();
         //PlayerDrawSpawn_Rpc(brushInstance.GetComponent<NetworkObject>());
@@ -115,14 +112,14 @@ public class Draw : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = true)]
+    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void CreateNewGroup_Rpc()
     {
         activeDrawingGroup = Instantiate(drawingGroup);
     }
 
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
+    /*[Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void AddAPoint_Rpc(Vector2 pointPos)
     {
         //Debug.Log(currentLineRenderer);
@@ -139,10 +136,10 @@ public class Draw : NetworkBehaviour
         currentLineRenderer.SetPosition(0, lastPos);
         int positionIndex = currentLineRenderer.positionCount - 1;
         currentLineRenderer.SetPosition(positionIndex, pointPos);
-    }
+    }*/
 
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
+    /*[Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void PointToMousePos_Rpc()
     {
         Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
@@ -153,7 +150,7 @@ public class Draw : NetworkBehaviour
             //AddAPoint_Rpc(mousePos);
             
         }
-    }
+    }*/
 
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void Erase_Rpc()

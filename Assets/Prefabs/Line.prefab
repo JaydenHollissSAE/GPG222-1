@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4425299720344011193}
   - component: {fileID: -3742583155422518660}
   - component: {fileID: 1679654064009326504}
-  - component: {fileID: 6650769346098478952}
   - component: {fileID: 5206393355569928675}
   m_Layer: 0
   m_Name: Line
@@ -190,19 +189,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &6650769346098478952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6898713895205278368}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52a8176505f72464bb475444f1b26d3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &5206393355569928675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,3 +201,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2394801cdcca06478794fa46ea1f25b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1

@@ -8,16 +8,16 @@ public class LineCollider : NetworkBehaviour
     LineRenderer lineRenderer;
     private Draw draw;
 
-    // Start is called before the first frame update
+    /*// Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         //draw = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Draw>();
         GenerateMesh_Rpc();
-    }
+    }*/
 
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void GenerateMesh_Rpc()
+    public void GenerateMesh_Rpc()
     {
         lineRenderer = GetComponent<LineRenderer>();
         MeshCollider collider = GetComponent<MeshCollider>();
