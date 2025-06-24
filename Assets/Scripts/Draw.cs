@@ -3,6 +3,7 @@ using Unity.Burst.CompilerServices;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEditor.Tilemaps;
+using System.Collections;
 
 
 public class Draw : NetworkBehaviour
@@ -36,11 +37,11 @@ public class Draw : NetworkBehaviour
     {
         if (IsClient)
         {
-            if (currentDrawing != null)
-            {
-                currentLineRenderer = currentDrawing.GetComponent<LineRenderer>();
+            //if (currentDrawing != null)
+            //{
+            //    currentLineRenderer = currentDrawing.GetComponent<LineRenderer>();
 
-            }
+            //}
             Drawing();
 
         }
@@ -52,16 +53,19 @@ public class Draw : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             //CreateNewGroup_Rpc();
-            ServerProcessing_Rpc(m_camera.ScreenToWorldPoint(GetControl()), true);
+            //ServerProcessing_Rpc(m_camera.ScreenToWorldPoint(GetControl()), true);
+            ToServerSetup(true);
+
         }
         else if (Input.GetKey(KeyCode.Mouse0))
         {
-            ServerProcessing_Rpc(m_camera.ScreenToWorldPoint(GetControl()));
+            //ServerProcessing_Rpc(m_camera.ScreenToWorldPoint(GetControl()));
+            ToServerSetup();
         }
-        else
-        {
-            currentLineRenderer = null;
-        }
+        //else
+        //{
+        //    currentLineRenderer = null;
+        //}
     }
 
     Vector3 GetControl()
@@ -75,10 +79,9 @@ public class Draw : NetworkBehaviour
 
 
     [Rpc(SendTo.Server, RequireOwnership = false)]
-    void ServerProcessing_Rpc(Vector2 mousePos, bool newItem = false)
+    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, bool newItem = false)
     {
         GameObject brushInstance = Instantiate(brush);
-        brushInstance.GetComponent<NetworkObject>().Spawn();
         //brushInstance.transform.SetParent(activeDrawingGroup.transform);
         //if (drawings != null) activeDrawingGroup.transform.SetParent(drawings.transform);
 
@@ -90,17 +93,40 @@ public class Draw : NetworkBehaviour
         //because you gotta have 2 points to start a line renderer, 
         //Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
 
-        if (newItem) lastPos = mousePos;
+        //if (newItem) lastPos = mousePos;
+        if (newItem) return;
 
         currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);
-        lastPos = mousePos;
         brushInstance.GetComponent<LineCollider>().GenerateMesh_Rpc();
-        currentDrawing = brushInstance;
+        //currentDrawing = brushInstance;
+        //lastPos = mousePos;
+        brushInstance.GetComponent<NetworkObject>().Spawn();
         //CreateNewGroup_Rpc();
         //PlayerDrawSpawn_Rpc(brushInstance.GetComponent<NetworkObject>());
+        return;
     }
 
+    void ToServerSetup(bool newItem = false)
+    {
+        //StartCoroutine(ServerAwaitLoop(, newItem));
+        //ServerProcessing_Rpc();
+        Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
+        ServerProcessing_Rpc(mousePos, lastPos, newItem);
+        lastPos = mousePos;
+
+    }
+
+    //IEnumerator ServerAwaitLoop(Vector2 mousePos, bool newItem)
+    //{
+    //    bool waitForFunc = ServerProcessing_Rpc(mousePos, newItem);
+    //    while (waitForFunc)
+    //    {
+    //        yield return null;
+    //    }
+    //    lastPos = mousePos;
+
+    //}
 
 
 
