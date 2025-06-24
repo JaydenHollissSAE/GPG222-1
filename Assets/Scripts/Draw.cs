@@ -28,7 +28,10 @@ public class Draw : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         m_camera = Camera.main;
-        playerColour = drawingColors[Random.Range(0,drawingColors.Count)];
+        if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
+        int selectedColour = Random.Range(0, GameManager.instance.drawingColours.Count);
+        GameManager.instance.colours.Value = int.Parse(GameManager.instance.colours.Value.ToString() + selectedColour.ToString());
+        playerColour = GameManager.instance.drawingColours[selectedColour];
     }
 
     private void Update()
@@ -75,9 +78,10 @@ public class Draw : NetworkBehaviour
         currentLineRenderer.SetPosition(1, mousePos);
         currentLineRenderer.startColor = playerColour;
         currentLineRenderer.endColor = playerColour;
-        Debug.Log(lastPos);
-        Debug.Log(mousePos);
-        brushInstance.GetComponent<NetworkObject>().Spawn();
+        //Debug.Log(lastPos);
+        //Debug.Log(mousePos);
+        brushInstance.GetComponent<LineCollider>().enabled = true;
+        //brushInstance.GetComponent<NetworkObject>().Spawn();
         return;
     }
 

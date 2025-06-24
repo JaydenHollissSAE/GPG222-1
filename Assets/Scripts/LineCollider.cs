@@ -16,15 +16,23 @@ public class LineCollider : NetworkBehaviour
         GenerateMesh_Rpc();
     }*/
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    public void GenerateMesh_Rpc()
+
+    //[Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
+
+    private void Start()
+    {
+        GenerateMesh();
+    }
+
+    public void GenerateMesh()
     {
         lineRenderer = GetComponent<LineRenderer>();
         MeshCollider collider = GetComponent<MeshCollider>();
-        if (collider == null )
+        if (collider == null)
         {
             collider = gameObject.AddComponent<MeshCollider>();
         }
+        lineRenderer.useWorldSpace = false;
         Mesh mesh = new Mesh();
         lineRenderer.BakeMesh(mesh, true);
         collider.sharedMesh = mesh;
