@@ -78,10 +78,11 @@ public class Draw : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, bool newItem = false)
     {
         GameObject brushInstance = Instantiate(brush);
+        //brushInstance.GetComponent<NetworkObject>().Spawn();
         //brushInstance.transform.SetParent(activeDrawingGroup.transform);
         //if (drawings != null) activeDrawingGroup.transform.SetParent(drawings.transform);
 
@@ -98,10 +99,14 @@ public class Draw : NetworkBehaviour
 
         currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);
-        brushInstance.GetComponent<LineCollider>().GenerateMesh_Rpc();
+        Debug.Log(lastPos);
+        Debug.Log(mousePos);
+        brushInstance.GetComponent<NetworkObject>().Spawn();
+        //brushInstance.GetComponent<LineCollider>().GenerateMesh_Rpc();
+       
+        
         //currentDrawing = brushInstance;
         //lastPos = mousePos;
-        brushInstance.GetComponent<NetworkObject>().Spawn();
         //CreateNewGroup_Rpc();
         //PlayerDrawSpawn_Rpc(brushInstance.GetComponent<NetworkObject>());
         return;
