@@ -15,6 +15,7 @@ public class Draw : NetworkBehaviour
     public GameObject drawings;
     public GameObject drawingGroup;
     private GameObject activeDrawingGroup;
+    private Color playerColour = Color.white;
 
 
     public LineRenderer currentLineRenderer;
@@ -28,6 +29,7 @@ public class Draw : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         m_camera = Camera.main;
+        playerColour = drawingColors[Random.Range(0,drawingColors.Count)];
 
         //if (drawings == null) drawings = DrawingsFolder.instance.gameObject;
 
@@ -79,7 +81,7 @@ public class Draw : NetworkBehaviour
 
 
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, bool newItem = false)
+    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, bool newItem = false)
     {
         GameObject brushInstance = Instantiate(brush);
         //brushInstance.GetComponent<NetworkObject>().Spawn();
@@ -99,6 +101,8 @@ public class Draw : NetworkBehaviour
 
         currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);
+        currentLineRenderer.startColor = playerColour;
+        currentLineRenderer.endColor = playerColour;
         Debug.Log(lastPos);
         Debug.Log(mousePos);
         brushInstance.GetComponent<NetworkObject>().Spawn();
@@ -117,7 +121,7 @@ public class Draw : NetworkBehaviour
         //StartCoroutine(ServerAwaitLoop(, newItem));
         //ServerProcessing_Rpc();
         Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
-        ServerProcessing_Rpc(mousePos, lastPos, newItem);
+        ServerProcessing_Rpc(mousePos, lastPos, playerColour, newItem);
         lastPos = mousePos;
 
     }
