@@ -31,7 +31,7 @@ public class Draw : NetworkBehaviour
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
         int selectedColour = Random.Range(0, GameManager.instance.drawingColours.Count);
         playerColour = GameManager.instance.drawingColours[selectedColour];
-            GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString()+"|";
+        GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString()+"|";
     }
 
     private void Update()
