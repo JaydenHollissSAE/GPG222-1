@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEditor.Build.Content;
 using UnityEngine;
@@ -71,7 +72,6 @@ public class Ball : NetworkBehaviour
     {
         moveDirection *= -1f;
     }
-
     IEnumerator AwaitedChange() 
     {
         yield return new WaitForSeconds(0.1f);
