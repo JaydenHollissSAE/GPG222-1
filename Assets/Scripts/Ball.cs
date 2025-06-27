@@ -13,6 +13,7 @@ public class Ball : NetworkBehaviour
     public NetworkVariable<float> speedDefault = new NetworkVariable<float>();
     public Color currentColour;
     private SpriteRenderer spriteRenderer;
+    private bool awaitChange = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public override void OnNetworkSpawn()
@@ -42,9 +43,11 @@ public class Ball : NetworkBehaviour
             if (currentColour == Color.white || collision.gameObject.GetComponent<LineRenderer>().startColor == currentColour)
             {
                 Debug.Log("Trigger switch");
-                if (IsServer) speed.Value += speedDefault.Value + speed.Value / 2;
-                SetColour();
-                NewDirection();
+                if (!awaitChange) 
+                {
+                    awaitChange = true;
+                    StartCoroutine(AwaitedChange());
+                }
             }
 
         }
@@ -68,6 +71,16 @@ public class Ball : NetworkBehaviour
     {
         moveDirection *= -1f;
     }
+
+    IEnumerator AwaitedChange() 
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (IsServer) speed.Value += speedDefault.Value + speed.Value / 2;
+        SetColour();
+        NewDirection();
+        awaitChange = false;
+    }
+    
 
     private void Update()
     {
