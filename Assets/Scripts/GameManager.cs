@@ -20,7 +20,7 @@ public class GameManager : NetworkBehaviour
         if (colours == null)
         {
             colours = new NetworkVariable<int>();
-            colours.Value = 0;
+            colours.Value = 1;
         } 
            
     }
@@ -32,9 +32,10 @@ public class GameManager : NetworkBehaviour
         {
             localColours = colours.Value;
             coloursList = new List<int>();
-            foreach (string colourId in localColours.ToString().Split("")) 
+            string[] tmpColours = localColours.ToString().Split("");
+            for (int i = 1; i < tmpColours.Length; i++) 
             {
-                coloursList.Add(int.Parse(colourId));
+                coloursList.Add(int.Parse(tmpColours[i]));
             }
         }
     }
