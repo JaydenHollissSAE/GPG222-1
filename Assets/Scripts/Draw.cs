@@ -30,8 +30,8 @@ public class Draw : NetworkBehaviour
         m_camera = Camera.main;
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
         int selectedColour = Random.Range(0, GameManager.instance.drawingColours.Count);
-        GameManager.instance.colours.Value = int.Parse(GameManager.instance.colours.Value.ToString() + selectedColour.ToString());
         playerColour = GameManager.instance.drawingColours[selectedColour];
+            GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString()+"|";
     }
 
     private void Update()
@@ -68,11 +68,11 @@ public class Draw : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
     void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, bool newItem = false)
     {
+        if (newItem) return;
         GameObject brushInstance = Instantiate(brush);
 
         LineRenderer currentLineRenderer = brushInstance.GetComponent<LineRenderer>();
 
-        if (newItem) return;
 
         currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);

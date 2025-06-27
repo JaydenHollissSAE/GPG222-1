@@ -37,21 +37,25 @@ public class Ball : NetworkBehaviour
 
     private void OnTriggerEnter(Collider collision)
     {
-        Debug.Log("Hit Something");
-        if (collision.gameObject.tag == "Drawing")
+        if (IsServer)
         {
-            Debug.Log("Hit Drawing");
-            if (currentColour == Color.white || collision.gameObject.GetComponent<LineRenderer>().startColor == currentColour)
+            //Debug.Log("Hit Something");
+            if (collision.gameObject.tag == "Drawing")
             {
-                Debug.Log("Trigger switch");
-                if (!awaitChange) 
+                //Debug.Log("Hit Drawing");
+                if (currentColour == Color.white || collision.gameObject.GetComponent<LineRenderer>().startColor == currentColour)
                 {
-                    awaitChange = true;
-                    StartCoroutine(AwaitedChange());
+                    //Debug.Log("Trigger switch");
+                    if (!awaitChange) 
+                    {
+                        awaitChange = true;
+                        StartCoroutine(AwaitedChange());
+                    }
                 }
-            }
 
+            }
         }
+
     }
 
     [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
@@ -64,7 +68,7 @@ public class Ball : NetworkBehaviour
     {
 
         Color tmpColour = currentColour;
-        while(tmpColour == currentColour) currentColour = GameManager.instance.drawingColours[GameManager.instance.coloursList[Random.Range(0, GameManager.instance.coloursList.Count)]];
+        while(tmpColour == currentColour) currentColour = GameManager.instance.drawingColours[GameManager.instance.coloursList[Random.Range(0, GameManager.instance.coloursList.Count-1)]];
         spriteRenderer.color = currentColour;
     }
 
