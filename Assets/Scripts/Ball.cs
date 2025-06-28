@@ -12,7 +12,8 @@ public class Ball : NetworkBehaviour
     //[SerializeField] float speedDefault = 1f;
     [SerializeField] float speedDefaultOG = 0.6f;
     public NetworkVariable<float> speedDefault = new NetworkVariable<float>();
-    public NetworkVariable<int> colourIndex = new NetworkVariable<int>();
+    //public NetworkVariable<int> colourIndex = new NetworkVariable<int>();
+    public int colourIndex;
     public NetworkVariable<bool> awaitChange = new NetworkVariable<bool>();
     public Color currentColour;
     private SpriteRenderer spriteRenderer;
@@ -28,6 +29,7 @@ public class Ball : NetworkBehaviour
         speed.Value = speedDefault.Value;
         currentColour = spriteRenderer.color;
         //SetColour();
+        //StartCoroutine(TestLoop());
 
 
     }
@@ -48,11 +50,17 @@ public class Ball : NetworkBehaviour
                 Debug.Log(collision.gameObject.GetComponent<LineRenderer>().startColor);
                 Debug.Log(currentColour);
                 Debug.Log(currentColour.ToString());
-                if (currentColour == Color.white || collision.gameObject.GetComponent<DataStorage>().selectedColour == colourIndex.Value)
+                if (currentColour == Color.white || collision.gameObject.GetComponent<DataStorage>().selectedColour == colourIndex)
                 {
                     Debug.Log("Trigger switch");
 
-                    awaitChange.Value = true;
+                    if (!awaitChangeLocal)
+                    {
+                        awaitChangeLocal = true;
+                        StartCoroutine(AwaitedChange());
+
+                    }
+                    //awaitChange.Value = true;
                     //collision.GetComponent<NetworkObject>().Despawn();
                 }
 
@@ -61,24 +69,25 @@ public class Ball : NetworkBehaviour
 
     }
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
-    void DestroyLine_Rpc(NetworkObjectReference line)
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    void SetColour_Rpc(int colourIndex)
     {
-
+        currentColour = GameManager.instance.drawingColours[colourIndex];
+        spriteRenderer.color = currentColour;
     }
 
     void SetColour()
     {
 
         //Color tmpColour = currentColour;
-        int tmpColour = colourIndex.Value;
+        int tmpColour = colourIndex;
         while (true)
         {
-            if (IsServer) colourIndex.Value = GameManager.instance.coloursList[Random.Range(0, GameManager.instance.coloursList.Count - 1)];
-            if (tmpColour != colourIndex.Value || GameManager.instance.coloursList.Count <= 1) break;
+            if (IsServer) colourIndex = GameManager.instance.coloursList[Random.Range(0, GameManager.instance.coloursList.Count)];
+            if (tmpColour != colourIndex || GameManager.instance.coloursList.Count <= 1) break;
         }
-        currentColour = GameManager.instance.drawingColours[colourIndex.Value];
-        spriteRenderer.color = currentColour;
+        //currentColour = GameManager.instance.drawingColours[colourIndex];
+        //spriteRenderer.color = currentColour;
         return;
     }
 
@@ -87,24 +96,35 @@ public class Ball : NetworkBehaviour
         moveDirection *= -1f;
         return;
     }
+
+    IEnumerator TestLoop()
+    {
+        while (true)
+        {
+            yield return null;
+            Debug.Log(Random.Range(0, GameManager.instance.coloursList.Count));
+        }
+    }
+
     IEnumerator AwaitedChange() 
     {
         yield return new WaitForSeconds(0.1f);
         if (IsServer) speed.Value += speedDefault.Value /3 + speed.Value / 5;
         SetColour();
         NewDirection();
-        awaitChange.Value = false;
+        //awaitChange.Value = false;
+        SetColour_Rpc(colourIndex);
         awaitChangeLocal = false;
     }
     
 
     private void Update()
     {
-        if (awaitChange.Value == true && !awaitChangeLocal)
-        {
-            awaitChangeLocal = true;
-            StartCoroutine(AwaitedChange());
-        }
+        //if (awaitChange.Value == true && !awaitChangeLocal)
+        //{
+        //    awaitChangeLocal = true;
+        //    StartCoroutine(AwaitedChange());
+        //}
         if (IsServer) transform.position = Vector3.MoveTowards(transform.position, transform.position+moveDirection, Time.deltaTime * speed.Value);
     }
 
