@@ -23,6 +23,7 @@ public class Draw : NetworkBehaviour
     public GameObject currentDrawing;
     public List<Color> drawingColors;
     public int prevColour = 0;
+    public int selectedColour;
 
     Vector2 lastPos;
 
@@ -34,7 +35,7 @@ public class Draw : NetworkBehaviour
 
         if (IsServer)
         {
-            int selectedColour;
+            
             while (true)
             {
                 selectedColour = UnityEngine.Random.Range(0, GameManager.instance.drawingColours.Count);
@@ -61,7 +62,8 @@ public class Draw : NetworkBehaviour
             Debug.Log(GameManager.instance.coloursList.Count.ToString() + " , " + id.ToString());
             yield return null;
         }
-        playerColour = drawingColors[GameManager.instance.coloursList[id-1]];
+        selectedColour = GameManager.instance.coloursList[id - 1];
+        playerColour = drawingColors[selectedColour];
     }
 
 
@@ -97,7 +99,7 @@ public class Draw : NetworkBehaviour
 
 
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
-    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, bool newItem = false)
+    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false)
     {
         if (newItem) return;
         GameObject brushInstance = Instantiate(brush);
@@ -110,6 +112,7 @@ public class Draw : NetworkBehaviour
         currentLineRenderer.SetPosition(1, mousePos);
         currentLineRenderer.startColor = playerColour;
         currentLineRenderer.endColor = playerColour;
+        brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
         //Debug.Log(lastPos);
         //Debug.Log(mousePos);
         brushInstance.GetComponent<LineCollider>().enabled = true;
@@ -120,7 +123,7 @@ public class Draw : NetworkBehaviour
     void ToServerSetup(bool newItem = false)
     {
         Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
-        ServerProcessing_Rpc(mousePos, lastPos, playerColour, newItem);
+        ServerProcessing_Rpc(mousePos, lastPos, playerColour, selectedColour, newItem);
         lastPos = mousePos;
 
     }

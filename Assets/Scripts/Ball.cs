@@ -27,7 +27,7 @@ public class Ball : NetworkBehaviour
         speedDefault.Value = speedDefaultOG;
         speed.Value = speedDefault.Value;
         currentColour = spriteRenderer.color;
-        SetColour();
+        //SetColour();
 
 
     }
@@ -45,12 +45,15 @@ public class Ball : NetworkBehaviour
             if (collision.gameObject.tag == "Drawing")
             {
                 Debug.Log("Hit Drawing");
-                if (currentColour == Color.white || collision.gameObject.GetComponent<LineRenderer>().startColor == currentColour)
+                Debug.Log(collision.gameObject.GetComponent<LineRenderer>().startColor);
+                Debug.Log(currentColour);
+                Debug.Log(currentColour.ToString());
+                if (currentColour == Color.white || collision.gameObject.GetComponent<DataStorage>().selectedColour == colourIndex.Value)
                 {
                     Debug.Log("Trigger switch");
 
-                    if (awaitChange.Value == false) awaitChange.Value = true;
-
+                    awaitChange.Value = true;
+                    //collision.GetComponent<NetworkObject>().Despawn();
                 }
 
             }
@@ -67,13 +70,14 @@ public class Ball : NetworkBehaviour
     void SetColour()
     {
 
-        Color tmpColour = currentColour;
+        //Color tmpColour = currentColour;
+        int tmpColour = colourIndex.Value;
         while (true)
         {
-            if (IsServer) colourIndex.Value = Random.Range(0, GameManager.instance.coloursList.Count - 1);
-            currentColour = GameManager.instance.drawingColours[GameManager.instance.coloursList[colourIndex.Value]];
-            if (tmpColour != currentColour || GameManager.instance.coloursList.Count > 1) break;
+            if (IsServer) colourIndex.Value = GameManager.instance.coloursList[Random.Range(0, GameManager.instance.coloursList.Count - 1)];
+            if (tmpColour != colourIndex.Value || GameManager.instance.coloursList.Count <= 1) break;
         }
+        currentColour = GameManager.instance.drawingColours[colourIndex.Value];
         spriteRenderer.color = currentColour;
         return;
     }
@@ -86,7 +90,7 @@ public class Ball : NetworkBehaviour
     IEnumerator AwaitedChange() 
     {
         yield return new WaitForSeconds(0.1f);
-        if (IsServer) speed.Value += speedDefault.Value + speed.Value / 2;
+        if (IsServer) speed.Value += speedDefault.Value /3 + speed.Value / 5;
         SetColour();
         NewDirection();
         awaitChange.Value = false;
