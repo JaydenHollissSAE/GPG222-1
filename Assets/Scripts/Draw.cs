@@ -4,6 +4,8 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEditor.Tilemaps;
 using System.Collections;
+using System;
+using Unity.Collections;
 
 
 public class Draw : NetworkBehaviour
@@ -14,7 +16,7 @@ public class Draw : NetworkBehaviour
     public GameObject drawings;
     public GameObject drawingGroup;
     private GameObject activeDrawingGroup;
-    private Color playerColour = Color.white;
+    public Color playerColour = Color.white;
 
 
     public LineRenderer currentLineRenderer;
@@ -29,14 +31,43 @@ public class Draw : NetworkBehaviour
         base.OnNetworkSpawn();
         m_camera = Camera.main;
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
-        int selectedColour = Random.Range(0, GameManager.instance.drawingColours.Count);
-        playerColour = GameManager.instance.drawingColours[selectedColour];
-        GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString()+"|";
+
+        if (IsServer)
+        {
+            int selectedColour;
+            while (true)
+            {
+                selectedColour = UnityEngine.Random.Range(0, GameManager.instance.drawingColours.Count);
+                if (!GameManager.instance.colours.Value.ToString().Contains(selectedColour.ToString() + "|") && !GameManager.instance.colours.Value.ToString().Contains("|" + selectedColour.ToString() + "|")) break;
+            }
+            GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
+            playerColour = drawingColors[selectedColour];
+            //playerColour = GameManager.instance.drawingColours[selectedColour];
+            //SetColour_Rpc(playerColour, OwnerClientId);
+        }
+        else StartCoroutine(SetColour());
+
+
     }
+
+
+    IEnumerator SetColour()
+    {
+        int id = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None).Length;
+        //int id = Convert.ToInt32(OwnerClientId);
+        Debug.Log(GameManager.instance.coloursList.Count.ToString() + " , " + id.ToString());
+        while (GameManager.instance.coloursList.Count < id)
+        {
+            Debug.Log(GameManager.instance.coloursList.Count.ToString() + " , " + id.ToString());
+            yield return null;
+        }
+        playerColour = drawingColors[GameManager.instance.coloursList[id-1]];
+    }
+
 
     private void Update()
     {
-        if (IsClient)
+        if (IsClient && IsLocalPlayer)
         {
             Drawing();
         }
@@ -65,7 +96,7 @@ public class Draw : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.ClientsAndHost, RequireOwnership = false)]
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
     void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, bool newItem = false)
     {
         if (newItem) return;
@@ -73,6 +104,7 @@ public class Draw : NetworkBehaviour
 
         LineRenderer currentLineRenderer = brushInstance.GetComponent<LineRenderer>();
 
+        
 
         currentLineRenderer.SetPosition(0, lastPos);
         currentLineRenderer.SetPosition(1, mousePos);
