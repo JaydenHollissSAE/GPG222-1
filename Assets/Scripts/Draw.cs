@@ -30,6 +30,7 @@ public class Draw : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        drawingColors = GameManager.instance.drawingColors;
         m_camera = Camera.main;
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
 
@@ -99,7 +100,7 @@ public class Draw : NetworkBehaviour
 
 
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
-    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false)
+    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, int width = 1)
     {
         if (newItem) return;
         GameObject brushInstance = Instantiate(brush);
@@ -112,6 +113,10 @@ public class Draw : NetworkBehaviour
         currentLineRenderer.SetPosition(1, mousePos);
         currentLineRenderer.startColor = playerColour;
         currentLineRenderer.endColor = playerColour;
+
+
+        currentLineRenderer.width = width;
+
         brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
         //Debug.Log(lastPos);
         //Debug.Log(mousePos);
@@ -120,10 +125,10 @@ public class Draw : NetworkBehaviour
         return;
     }
 
-    void ToServerSetup(bool newItem = false)
+    void ToServerSetup(bool newItem = false, int width = 1)
     {
         Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
-        ServerProcessing_Rpc(mousePos, lastPos, playerColour, selectedColour, newItem);
+        ServerProcessing_Rpc(mousePos, lastPos, playerColour, selectedColour, newItem, width);
         lastPos = mousePos;
 
     }

@@ -65,6 +65,10 @@ public class Ball : NetworkBehaviour
                 }
 
             }
+            else if (collision.gameObject.tag == "Bounds")
+            {
+                // Elimination and end game
+            }
         }
 
     }
