@@ -19,6 +19,9 @@ public class Draw : NetworkBehaviour
     public Color playerColour = Color.white;
 
 
+    public float currentInk;
+    public float maxInk = 100f;
+
     public LineRenderer currentLineRenderer;
     public GameObject currentDrawing;
     public List<Color> drawingColors;
@@ -31,6 +34,8 @@ public class Draw : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         drawingColors = GameManager.instance.drawingColors;
+        maxInk = GameManager.instance.maxInk;
+        currentInk = GameManager.instance.maxInk;
         m_camera = Camera.main;
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
 
@@ -78,7 +83,7 @@ public class Draw : NetworkBehaviour
 
     void Drawing()
     {
-        
+
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             ToServerSetup(true);
@@ -87,6 +92,8 @@ public class Draw : NetworkBehaviour
         {
             ToServerSetup();
         }
+        else if (currentInk < maxInk) currentInk += Time.deltaTime / 2;
+        else currentInk = maxInk;
     }
 
     Vector3 GetControl()
@@ -120,16 +127,21 @@ public class Draw : NetworkBehaviour
         brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
         //Debug.Log(lastPos);
         //Debug.Log(mousePos);
-        brushInstance.GetComponent<LineCollider>().enabled = true;
+        if (IsServer) brushInstance.GetComponent<LineCollider>().enabled = true;
         //brushInstance.GetComponent<NetworkObject>().Spawn();
         return;
     }
 
     void ToServerSetup(bool newItem = false, int width = 1)
     {
-        Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
-        ServerProcessing_Rpc(mousePos, lastPos, playerColour, selectedColour, newItem, width);
-        lastPos = mousePos;
+        currentInk -= Time.deltaTime * 2;
+        if (currentInk > 0)
+        {
+            Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
+            ServerProcessing_Rpc(mousePos, lastPos, playerColour, selectedColour, newItem, width);
+            lastPos = mousePos;
+        }
+
 
     }
 }

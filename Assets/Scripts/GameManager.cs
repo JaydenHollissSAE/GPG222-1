@@ -13,6 +13,9 @@ public class GameManager : NetworkBehaviour
     public List<int> coloursList;
     public List<Color> drawingColours = new List<Color>();
     public static GameManager instance;
+
+    public float maxInk = 100f;
+
     //public NetworkVariable<GameManager> networkInstance = null;
 
     public override void OnNetworkSpawn()
@@ -24,9 +27,9 @@ public class GameManager : NetworkBehaviour
         {
             colours = new NetworkVariable<FixedString128Bytes>();
             //colours.Value = "";
-        } 
+        }
         //Debug.Log(colours.Value);
-           
+
     }
 
 
