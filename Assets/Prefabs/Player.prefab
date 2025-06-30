@@ -75,9 +75,12 @@ MonoBehaviour:
   brush: {fileID: 6898713895205278368, guid: 780fceabab0196a439502bc4f95aad97, type: 3}
   drawings: {fileID: 0}
   drawingGroup: {fileID: 7483651963443046717, guid: 9545d8dba7f9cf84e856990a7a1cc2f1, type: 3}
+  playerColour: {r: 1, g: 1, b: 1, a: 1}
+  currentInk: 0
+  maxInk: 100
   currentLineRenderer: {fileID: 0}
   currentDrawing: {fileID: 0}
-  drawingColors:
+  drawingColours:
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 1, g: 0.6244385, b: 0, a: 1}
   - {r: 1, g: 0.9959273, b: 0, a: 1}
@@ -96,3 +99,4 @@ MonoBehaviour:
   - {r: 1, g: 0, b: 0.36141062, a: 1}
   - {r: 1, g: 0, b: 0.065633774, a: 1}
   prevColour: 0
+  selectedColour: 0

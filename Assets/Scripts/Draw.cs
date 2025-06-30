@@ -24,7 +24,7 @@ public class Draw : NetworkBehaviour
 
     public LineRenderer currentLineRenderer;
     public GameObject currentDrawing;
-    public List<Color> drawingColors;
+    public List<Color> drawingColours;
     public int prevColour = 0;
     public int selectedColour;
 
@@ -33,11 +33,11 @@ public class Draw : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        drawingColors = GameManager.instance.drawingColors;
+        if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
+        drawingColours = GameManager.instance.drawingColours;
         maxInk = GameManager.instance.maxInk;
         currentInk = GameManager.instance.maxInk;
         m_camera = Camera.main;
-        if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
 
         if (IsServer)
         {
@@ -48,7 +48,7 @@ public class Draw : NetworkBehaviour
                 if (!GameManager.instance.colours.Value.ToString().Contains(selectedColour.ToString() + "|") && !GameManager.instance.colours.Value.ToString().Contains("|" + selectedColour.ToString() + "|")) break;
             }
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
-            playerColour = drawingColors[selectedColour];
+            playerColour = drawingColours[selectedColour];
             //playerColour = GameManager.instance.drawingColours[selectedColour];
             //SetColour_Rpc(playerColour, OwnerClientId);
         }
@@ -69,7 +69,7 @@ public class Draw : NetworkBehaviour
             yield return null;
         }
         selectedColour = GameManager.instance.coloursList[id - 1];
-        playerColour = drawingColors[selectedColour];
+        playerColour = drawingColours[selectedColour];
     }
 
 
@@ -107,7 +107,7 @@ public class Draw : NetworkBehaviour
 
 
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
-    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, int width = 1)
+    void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, float width = 0.10f)
     {
         if (newItem) return;
         GameObject brushInstance = Instantiate(brush);
@@ -122,7 +122,8 @@ public class Draw : NetworkBehaviour
         currentLineRenderer.endColor = playerColour;
 
 
-        currentLineRenderer.width = width;
+        currentLineRenderer.startWidth = width;
+        currentLineRenderer.endWidth = width;
 
         brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
         //Debug.Log(lastPos);
@@ -132,7 +133,7 @@ public class Draw : NetworkBehaviour
         return;
     }
 
-    void ToServerSetup(bool newItem = false, int width = 1)
+    void ToServerSetup(bool newItem = false, float width = 0.10f)
     {
         currentInk -= Time.deltaTime * 2;
         if (currentInk > 0)
