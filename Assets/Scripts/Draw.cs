@@ -106,32 +106,70 @@ public class Draw : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    //[Rpc(SendTo.Everyone, RequireOwnership = false)]
+    //void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, float width = 0.10f)
+    //{
+    //    if (newItem) return;
+    //    GameObject brushInstance = Instantiate(brush);
+    //    NetworkObject brushNetObj = brushInstance.GetComponent<NetworkObject>();
+
+    //    LineRenderer currentLineRenderer = brushNetObj.GetComponent<LineRenderer>();
+
+        
+
+    //    currentLineRenderer.SetPosition(0, lastPos);
+    //    currentLineRenderer.SetPosition(1, mousePos);
+    //    currentLineRenderer.startColor = playerColour;
+    //    currentLineRenderer.endColor = playerColour;
+
+
+    //    currentLineRenderer.startWidth = width;
+    //    currentLineRenderer.endWidth = width;
+
+    //    brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
+    //    //Debug.Log(lastPos);
+    //    //Debug.Log(mousePos);
+    //    if (IsServer) brushInstance.GetComponent<LineCollider>().enabled = true;
+    //    //brushInstance.GetComponent<NetworkObject>().Spawn();
+    //    brushNetObj.Spawn();
+    //    return;
+    //}
+
+
+    [Rpc(SendTo.Server, RequireOwnership = false)]
     void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, float width = 0.10f)
     {
         if (newItem) return;
         GameObject brushInstance = Instantiate(brush);
-
-        LineRenderer currentLineRenderer = brushInstance.GetComponent<LineRenderer>();
-
-        
-
-        currentLineRenderer.SetPosition(0, lastPos);
-        currentLineRenderer.SetPosition(1, mousePos);
-        currentLineRenderer.startColor = playerColour;
-        currentLineRenderer.endColor = playerColour;
-
-
-        currentLineRenderer.startWidth = width;
-        currentLineRenderer.endWidth = width;
-
+        NetworkObject brushNetObj = brushInstance.GetComponent<NetworkObject>();
         brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
-        //Debug.Log(lastPos);
-        //Debug.Log(mousePos);
-        if (IsServer) brushInstance.GetComponent<LineCollider>().enabled = true;
-        //brushInstance.GetComponent<NetworkObject>().Spawn();
-        return;
+        brushNetObj.Spawn();
+        // Add:
+        ApplyLineVisuals_ClientRpc(brushNetObj.NetworkObjectId, mousePos, lastPos, playerColour, width);
     }
+
+
+    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    void ApplyLineVisuals_ClientRpc(ulong /*or int & whatever ur using*/ playerId, Vector2 mousePos, Vector2 lastPos, Color color, float width)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
+        {
+            LineRenderer line = netObj.GetComponent<LineRenderer>();
+            if (line != null)
+            {
+                line.SetPosition(0, lastPos);
+                line.SetPosition(1, mousePos);
+                line.startColor = color;
+                line.endColor = color;
+                line.widthMultiplier = width;
+            }
+            netObj.GetComponent<LineCollider>().enabled = true;
+        }
+    }
+
+
+
+
 
     void ToServerSetup(bool newItem = false, float width = 0.10f)
     {

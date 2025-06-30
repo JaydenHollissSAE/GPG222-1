@@ -60,6 +60,8 @@ public class Ball : NetworkBehaviour
                         StartCoroutine(AwaitedChange());
 
                     }
+                    collision.GetComponent<NetworkObject>().Despawn(true);
+                    Destroy(collision.gameObject);
                     //awaitChange.Value = true;
                     //collision.GetComponent<NetworkObject>().Despawn();
                 }
