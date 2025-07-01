@@ -113,7 +113,14 @@ public class Ball : NetworkBehaviour
 
     void NewDirection()
     {
-        moveDirection *= -1f;
+        //moveDirection *= -1f;
+
+        float tweak = 1f;
+        if (transform.position.y < (transform.position.y + moveDirection.y))
+        {
+            tweak = -1f;
+        }
+        moveDirection = new Vector3(Random.Range(-1f,1f), Random.Range(-0f, 1f)*tweak, 0);
         return;
     }
 
