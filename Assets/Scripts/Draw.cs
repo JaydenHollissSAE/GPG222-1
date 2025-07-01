@@ -49,6 +49,7 @@ public class Draw : NetworkBehaviour
             }
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
             playerColour = drawingColours[selectedColour];
+            transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
             //playerColour = GameManager.instance.drawingColours[selectedColour];
             //SetColour_Rpc(playerColour, OwnerClientId);
         }
@@ -70,6 +71,7 @@ public class Draw : NetworkBehaviour
         }
         selectedColour = GameManager.instance.coloursList[id - 1];
         playerColour = drawingColours[selectedColour];
+        transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
     }
 
 
