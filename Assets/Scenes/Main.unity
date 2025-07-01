@@ -1317,6 +1317,7 @@ MonoBehaviour:
     m_InternalValue: 0
   currentColour: {r: 0, g: 0, b: 0, a: 0}
   awaitChangeLocal: 0
+  ending: {fileID: 6148476754136701200, guid: fee3340991b9ebe45ae85c5ee1ba431f, type: 3}
 --- !u!64 &1811489211
 MeshCollider:
   m_ObjectHideFlags: 0

@@ -18,6 +18,7 @@ public class Ball : NetworkBehaviour
     public Color currentColour;
     private SpriteRenderer spriteRenderer;
     [SerializeField] private bool awaitChangeLocal = false;
+    [SerializeField] GameObject ending;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public override void OnNetworkSpawn()
@@ -80,11 +81,21 @@ public class Ball : NetworkBehaviour
     private void ResetOnOut()
     {
         Draw[] players = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
-        int index = GameManager.instance.coloursList.IndexOf(colourIndex);
-        players[index].GetComponent<NetworkObject>().Despawn();
-        GameManager.instance.coloursList.RemoveAt(index);
-        transform.position = Vector2.zero;
-        StartCoroutine(AwaitedChange(true));
+        if (players.Length > 1)
+        {
+            int index = GameManager.instance.coloursList.IndexOf(colourIndex);
+            players[index].GetComponent<NetworkObject>().Despawn();
+            GameManager.instance.coloursList.RemoveAt(index);
+            transform.position = Vector2.zero;
+            StartCoroutine(AwaitedChange(true));
+        }
+        else
+        {
+            ending.GetComponent<NetworkObject>().Spawn();
+            //GetComponent<NetworkObject>().Despawn();
+        }
+
+
     }
 
 
