@@ -47,9 +47,6 @@ public class Ball : NetworkBehaviour
             if (collision.gameObject.tag == "Drawing")
             {
                 Debug.Log("Hit Drawing");
-                Debug.Log(collision.gameObject.GetComponent<LineRenderer>().startColor);
-                Debug.Log(currentColour);
-                Debug.Log(currentColour.ToString());
                 if (currentColour == Color.white || collision.gameObject.GetComponent<DataStorage>().selectedColour == colourIndex)
                 {
                     Debug.Log("Trigger switch");
