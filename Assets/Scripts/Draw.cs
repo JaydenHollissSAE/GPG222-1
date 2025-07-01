@@ -6,6 +6,8 @@ using UnityEditor.Tilemaps;
 using System.Collections;
 using System;
 using Unity.Collections;
+using TMPro;
+using UnityEngine.UI;
 
 
 public class Draw : NetworkBehaviour
@@ -17,6 +19,7 @@ public class Draw : NetworkBehaviour
     public GameObject drawingGroup;
     private GameObject activeDrawingGroup;
     public Color playerColour = Color.white;
+    private float inkMultiplier = 45f;
 
 
     public float currentInk;
@@ -27,6 +30,7 @@ public class Draw : NetworkBehaviour
     public List<Color> drawingColours;
     public int prevColour = 0;
     public int selectedColour;
+    private TextMeshProUGUI inkCounter;
 
     Vector2 lastPos;
 
@@ -50,10 +54,12 @@ public class Draw : NetworkBehaviour
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
             playerColour = drawingColours[selectedColour];
             transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
+            if (IsOwner) FindFirstObjectByType<Image>().color = playerColour;
             //playerColour = GameManager.instance.drawingColours[selectedColour];
             //SetColour_Rpc(playerColour, OwnerClientId);
         }
         else StartCoroutine(SetColour());
+        inkCounter = FindFirstObjectByType<TextMeshProUGUI>();
 
 
     }
@@ -72,6 +78,19 @@ public class Draw : NetworkBehaviour
         selectedColour = GameManager.instance.coloursList[id - 1];
         playerColour = drawingColours[selectedColour];
         transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
+        if (IsOwner)
+        {
+            FindFirstObjectByType<Image>().color = playerColour;
+        }
+    }
+
+
+
+    private void UpdateInkCounter()
+    {
+        if (inkCounter == null) inkCounter = FindFirstObjectByType<TextMeshProUGUI>();
+        if (currentInk < 0) currentInk = 0;
+        inkCounter.text = Mathf.FloorToInt(currentInk).ToString();
     }
 
 
@@ -85,17 +104,28 @@ public class Draw : NetworkBehaviour
 
     void Drawing()
     {
+        if (currentInk > 0)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                ToServerSetup(true);
+            }
+            else if (Input.GetKey(KeyCode.Mouse0))
+            {
+                ToServerSetup();
+            }
+        }
+        if (currentInk < maxInk)
+        {
+            currentInk += Time.deltaTime / 2 * inkMultiplier;
+            UpdateInkCounter();
+        }
+        else
+        {
+            currentInk = maxInk;
+            UpdateInkCounter();
+        }
 
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            ToServerSetup(true);
-        }
-        else if (Input.GetKey(KeyCode.Mouse0))
-        {
-            ToServerSetup();
-        }
-        else if (currentInk < maxInk) currentInk += Time.deltaTime / 2;
-        else currentInk = maxInk;
     }
 
     Vector3 GetControl()
@@ -175,7 +205,8 @@ public class Draw : NetworkBehaviour
 
     void ToServerSetup(bool newItem = false, float width = 0.10f)
     {
-        currentInk -= Time.deltaTime * 2;
+        currentInk -= Time.deltaTime * 2 * inkMultiplier;
+        UpdateInkCounter();
         if (currentInk > 0)
         {
             Vector2 mousePos = m_camera.ScreenToWorldPoint(GetControl());
