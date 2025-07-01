@@ -176,13 +176,12 @@ public class Draw : NetworkBehaviour
         NetworkObject brushNetObj = brushInstance.GetComponent<NetworkObject>();
         brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
         brushNetObj.Spawn();
-        // Add:
         ApplyLineVisuals_ClientRpc(brushNetObj.NetworkObjectId, mousePos, lastPos, playerColour, width);
     }
 
 
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
-    void ApplyLineVisuals_ClientRpc(ulong /*or int & whatever ur using*/ playerId, Vector2 mousePos, Vector2 lastPos, Color color, float width)
+    void ApplyLineVisuals_ClientRpc(ulong playerId, Vector2 mousePos, Vector2 lastPos, Color color, float width)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
         {

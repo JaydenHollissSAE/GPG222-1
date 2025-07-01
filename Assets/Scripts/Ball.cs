@@ -35,6 +35,7 @@ public class Ball : NetworkBehaviour
     }
 
 
+    
 
 
 
@@ -66,11 +67,27 @@ public class Ball : NetworkBehaviour
             }
             else if (collision.gameObject.tag == "Bounds")
             {
-                // Elimination and end game
+                if (!awaitChangeLocal)
+                {
+                    awaitChangeLocal = true;
+                    ResetOnOut();
+                }
             }
         }
 
     }
+
+    private void ResetOnOut()
+    {
+        Draw[] players = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
+        int index = GameManager.instance.coloursList.IndexOf(colourIndex);
+        players[index].GetComponent<NetworkObject>().Despawn();
+        GameManager.instance.coloursList.RemoveAt(index);
+        transform.position = Vector2.zero;
+        StartCoroutine(AwaitedChange(true));
+    }
+
+
 
     [Rpc(SendTo.Everyone, RequireOwnership = false)]
     void SetColour_Rpc(int colourIndex)
@@ -100,19 +117,12 @@ public class Ball : NetworkBehaviour
         return;
     }
 
-    IEnumerator TestLoop()
-    {
-        while (true)
-        {
-            yield return null;
-            Debug.Log(Random.Range(0, GameManager.instance.coloursList.Count));
-        }
-    }
 
-    IEnumerator AwaitedChange() 
+    IEnumerator AwaitedChange(bool reset = false) 
     {
         yield return new WaitForSeconds(0.1f);
-        if (IsServer) speed.Value += speedDefault.Value /3 + speed.Value / 5;
+        if (!reset) speed.Value += speedDefault.Value /3 + speed.Value / 5;
+        else speed.Value = speedDefault.Value;
         SetColour();
         NewDirection();
         //awaitChange.Value = false;

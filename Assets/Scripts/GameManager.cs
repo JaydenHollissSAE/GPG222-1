@@ -50,5 +50,11 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    public void NewList()
+    {
+        colours.Value = string.Join("|", coloursList);
+    }
+
+
 
 }
