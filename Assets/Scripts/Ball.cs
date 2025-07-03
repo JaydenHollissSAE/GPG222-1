@@ -78,6 +78,22 @@ public class Ball : NetworkBehaviour
 
     }
 
+
+    void CheckBounds()
+    {
+        if (transform.position.x > 30f || transform.position.x < -30f || transform.position.y > 30f || transform.position.y < 30f)
+        {
+            if (!awaitChangeLocal)
+            {
+                awaitChangeLocal = true;
+                ResetOnOut();
+            }
+        }
+        return;
+    }
+
+
+
     private void ResetOnOut()
     {
         Draw[] players = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
@@ -156,6 +172,7 @@ public class Ball : NetworkBehaviour
         //    awaitChangeLocal = true;
         //    StartCoroutine(AwaitedChange());
         //}
+        if (IsServer) CheckBounds();
         if (IsServer) transform.position = Vector3.MoveTowards(transform.position, transform.position+moveDirection, Time.deltaTime * speed.Value);
     }
 
