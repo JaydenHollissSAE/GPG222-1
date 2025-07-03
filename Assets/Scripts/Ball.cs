@@ -81,7 +81,7 @@ public class Ball : NetworkBehaviour
 
     void CheckBounds()
     {
-        if (transform.position.x > 30f || transform.position.x < -30f || transform.position.y > 30f || transform.position.y < 30f)
+        if (transform.position.x > 30f || transform.position.x < -30f || transform.position.y > 30f || transform.position.y < -30f)
         {
             if (!awaitChangeLocal)
             {
