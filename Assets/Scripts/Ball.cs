@@ -116,7 +116,7 @@ public class Ball : NetworkBehaviour
 
 
 
-    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    [Rpc(SendTo.Everyone, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
     void SetColour_Rpc(int colourIndex)
     {
         currentColour = GameManager.instance.drawingColours[colourIndex];

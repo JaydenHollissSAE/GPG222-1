@@ -168,7 +168,7 @@ public class Draw : NetworkBehaviour
     //}
 
 
-    [Rpc(SendTo.Server, RequireOwnership = false)]
+    [Rpc(SendTo.Server, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
     void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, float width = 0.10f)
     {
         if (newItem) return;
@@ -180,7 +180,7 @@ public class Draw : NetworkBehaviour
     }
 
 
-    [Rpc(SendTo.Everyone, RequireOwnership = false)]
+    [Rpc(SendTo.Everyone, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
     void ApplyLineVisuals_ClientRpc(ulong playerId, Vector2 mousePos, Vector2 lastPos, Color color, float width)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
