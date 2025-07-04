@@ -54,12 +54,12 @@ public class Draw : NetworkBehaviour
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
             playerColour = drawingColours[selectedColour];
             transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
-            if (IsOwner) FindFirstObjectByType<Image>().color = playerColour;
+            if (IsOwner) GetInkImage().color = playerColour;
             //playerColour = GameManager.instance.drawingColours[selectedColour];
             //SetColour_Rpc(playerColour, OwnerClientId);
         }
         else StartCoroutine(SetColour());
-        inkCounter = FindFirstObjectByType<TextMeshProUGUI>();
+        inkCounter = GetInkText();
 
 
     }
@@ -80,15 +80,35 @@ public class Draw : NetworkBehaviour
         transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
         if (IsOwner)
         {
-            FindFirstObjectByType<Image>().color = playerColour;
+            GetInkImage().color = playerColour;
         }
     }
 
 
 
+    Image GetInkImage()
+    {
+        foreach (var item in FindObjectsByType<Image>(FindObjectsSortMode.None)) 
+        { 
+            if (item.gameObject.tag == "InkCount") return item;
+        }
+        return FindFirstObjectByType<Image>();
+
+    }
+    TextMeshProUGUI GetInkText()
+    {
+        foreach (var item in FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None))
+        {
+            if (item.gameObject.tag == "InkCount") return item;
+        }
+        return FindFirstObjectByType<TextMeshProUGUI>();
+
+    }
+
+
     private void UpdateInkCounter()
     {
-        if (inkCounter == null) inkCounter = FindFirstObjectByType<TextMeshProUGUI>();
+        if (inkCounter == null) inkCounter = GetInkText();
         if (currentInk < 0) currentInk = 0;
         inkCounter.text = Mathf.FloorToInt(currentInk).ToString();
     }

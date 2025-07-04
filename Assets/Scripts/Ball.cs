@@ -1,5 +1,6 @@
 using System.Collections;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -107,12 +108,23 @@ public class Ball : NetworkBehaviour
         }
         else
         {
-            ending.GetComponent<NetworkObject>().Spawn();
+            StartCoroutine(EndingSequence());
             //GetComponent<NetworkObject>().Despawn();
         }
 
 
     }
+
+
+    IEnumerator EndingSequence()
+    {
+        while (ending.transform.localScale.y < 1)
+        {
+            ending.transform.localScale = Vector2.MoveTowards(transform.position, Vector2.one, Time.deltaTime);
+            yield return null;
+        }
+    }
+
 
 
 
