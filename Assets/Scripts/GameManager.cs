@@ -10,6 +10,7 @@ public class GameManager : NetworkBehaviour
 {
     public NetworkVariable<FixedString128Bytes> colours = null;
     private string localColours;
+    public List<Draw> drawList = new List<Draw>();
     public List<int> coloursList;
     public List<Color> drawingColours = new List<Color>();
     public static GameManager instance;
@@ -18,11 +19,17 @@ public class GameManager : NetworkBehaviour
 
     //public NetworkVariable<GameManager> networkInstance = null;
 
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         //if (networkInstance == null) networkInstance.Value = this;
-        instance = this;
+        if (instance = null) instance = this;
         if (colours == null)
         {
             colours = new NetworkVariable<FixedString128Bytes>();
@@ -53,6 +60,7 @@ public class GameManager : NetworkBehaviour
     public void NewList()
     {
         colours.Value = string.Join("|", coloursList);
+        localColours = colours.Value.ToString();
     }
 
 

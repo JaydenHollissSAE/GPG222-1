@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor.Build.Content;
@@ -97,13 +98,16 @@ public class Ball : NetworkBehaviour
 
     private void ResetOnOut()
     {
-        Draw[] players = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
-        if (players.Length > 1)
+        List<Draw> players = GameManager.instance.drawList;
+        int index = GameManager.instance.coloursList.IndexOf(colourIndex);
+        GameManager.instance.drawList.RemoveAt(index);
+        players[index].GetComponent<NetworkObject>().Despawn();
+        GameManager.instance.coloursList.RemoveAt(index);
+        GameManager.instance.NewList();
+        transform.position = Vector2.zero;
+        players = GameManager.instance.drawList;
+        if (players.Count > 1)
         {
-            int index = GameManager.instance.coloursList.IndexOf(colourIndex);
-            players[index].GetComponent<NetworkObject>().Despawn();
-            GameManager.instance.coloursList.RemoveAt(index);
-            transform.position = Vector2.zero;
             StartCoroutine(AwaitedChange(true));
         }
         else

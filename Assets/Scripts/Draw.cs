@@ -52,6 +52,7 @@ public class Draw : NetworkBehaviour
                 if (!GameManager.instance.colours.Value.ToString().Contains(selectedColour.ToString() + "|") && !GameManager.instance.colours.Value.ToString().Contains("|" + selectedColour.ToString() + "|")) break;
             }
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
+            GameManager.instance.drawList.Add(this);
             playerColour = drawingColours[selectedColour];
             transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
             if (IsOwner) GetInkImage().color = playerColour;
@@ -156,36 +157,6 @@ public class Draw : NetworkBehaviour
 
 
 
-
-
-    //[Rpc(SendTo.Everyone, RequireOwnership = false)]
-    //void ServerProcessing_Rpc(Vector2 mousePos, Vector2 lastPos, Color playerColour, int selectedColour, bool newItem = false, float width = 0.10f)
-    //{
-    //    if (newItem) return;
-    //    GameObject brushInstance = Instantiate(brush);
-    //    NetworkObject brushNetObj = brushInstance.GetComponent<NetworkObject>();
-
-    //    LineRenderer currentLineRenderer = brushNetObj.GetComponent<LineRenderer>();
-
-        
-
-    //    currentLineRenderer.SetPosition(0, lastPos);
-    //    currentLineRenderer.SetPosition(1, mousePos);
-    //    currentLineRenderer.startColor = playerColour;
-    //    currentLineRenderer.endColor = playerColour;
-
-
-    //    currentLineRenderer.startWidth = width;
-    //    currentLineRenderer.endWidth = width;
-
-    //    brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
-    //    //Debug.Log(lastPos);
-    //    //Debug.Log(mousePos);
-    //    if (IsServer) brushInstance.GetComponent<LineCollider>().enabled = true;
-    //    //brushInstance.GetComponent<NetworkObject>().Spawn();
-    //    brushNetObj.Spawn();
-    //    return;
-    //}
 
 
     [Rpc(SendTo.Server, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
