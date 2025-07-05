@@ -21,15 +21,10 @@ public class JoinDetection : NetworkBehaviour
         if (IsServer)
         {
             //players = GameManager.instance.drawList;
-            Debug.Log("Test");
             Draw[] draws = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
-            Debug.Log("players count: "+players.Count);
-            Debug.Log("draws length: "+draws.Length);
-
-               
+              
             if (players.Count < draws.Length)
             {
-                Debug.Log("Count Changed");
                 players = GameManager.instance.drawList;
                 foreach (NetworkObject networkObject in GameObject.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
                 {
@@ -40,10 +35,8 @@ public class JoinDetection : NetworkBehaviour
                     finally
                     {
                         LineRenderer lineRenderer = networkObject.GetComponent<LineRenderer>();
-                        Debug.Log("Run Spawn");
                         if (lineRenderer != null)
                         {
-                            Debug.Log("Set Data");
                             SetDrawData_Rpc(networkObject.NetworkObjectId, lineRenderer.GetPosition(1), lineRenderer.GetPosition(0), lineRenderer.startColor, lineRenderer.widthMultiplier);
                         }
                     }
