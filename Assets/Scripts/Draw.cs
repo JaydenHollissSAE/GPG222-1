@@ -167,12 +167,12 @@ public class Draw : NetworkBehaviour
         NetworkObject brushNetObj = brushInstance.GetComponent<NetworkObject>();
         brushInstance.GetComponent<DataStorage>().selectedColour = selectedColour;
         brushNetObj.Spawn();
-        ApplyLineVisuals_ClientRpc(brushNetObj.NetworkObjectId, mousePos, lastPos, playerColour, width);
+        ApplyLineVisuals_Rpc(brushNetObj.NetworkObjectId, mousePos, lastPos, playerColour, width);
     }
 
 
     [Rpc(SendTo.Everyone, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
-    void ApplyLineVisuals_ClientRpc(ulong playerId, Vector2 mousePos, Vector2 lastPos, Color color, float width)
+    void ApplyLineVisuals_Rpc(ulong playerId, Vector2 mousePos, Vector2 lastPos, Color colour, float width)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
         {
@@ -181,8 +181,8 @@ public class Draw : NetworkBehaviour
             {
                 line.SetPosition(0, lastPos);
                 line.SetPosition(1, mousePos);
-                line.startColor = color;
-                line.endColor = color;
+                line.startColor = colour;
+                line.endColor = colour;
                 line.widthMultiplier = width;
             }
             netObj.GetComponent<LineCollider>().enabled = true;

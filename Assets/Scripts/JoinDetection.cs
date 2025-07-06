@@ -51,7 +51,7 @@ public class JoinDetection : NetworkBehaviour
     
 
     [Rpc(SendTo.Everyone, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
-    void SetDrawData_Rpc(ulong playerId, Vector2 pos1, Vector2 pos0, Color color, float width)
+    void SetDrawData_Rpc(ulong playerId, Vector2 pos1, Vector2 pos0, Color colour, float width)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
         {
@@ -60,8 +60,8 @@ public class JoinDetection : NetworkBehaviour
             {
                 line.SetPosition(0, pos0);
                 line.SetPosition(1, pos1);
-                line.startColor = color;
-                line.endColor = color;
+                line.startColor = colour;
+                line.endColor = colour;
                 line.widthMultiplier = width;
             }
             netObj.GetComponent<LineCollider>().enabled = true;
