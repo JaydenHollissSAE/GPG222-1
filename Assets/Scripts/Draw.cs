@@ -19,7 +19,7 @@ public class Draw : NetworkBehaviour
     public GameObject drawingGroup;
     private GameObject activeDrawingGroup;
     public Color playerColour = Color.white;
-    private float inkMultiplier = 55f;
+    private float inkMultiplier = 50f;
 
 
     public float currentInk;
