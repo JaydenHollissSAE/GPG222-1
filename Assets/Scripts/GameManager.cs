@@ -11,10 +11,12 @@ public class GameManager : NetworkBehaviour
     public NetworkVariable<FixedString128Bytes> colours = null;
     private string localColours;
     public List<Draw> drawList = new List<Draw>();
+    public Draw localDraw;
     public List<int> coloursList;
     public List<Color> drawingColours = new List<Color>();
     public static GameManager instance;
     public bool freeDrawActive = false;
+    [SerializeField] GameObject colourSelection;
 
     public float maxInk = 100f;
 
@@ -43,19 +45,30 @@ public class GameManager : NetworkBehaviour
 
     private void Update()
     {
-        if (localColours != colours.Value.ToString())
+        if (!freeDrawActive)
         {
-            //Debug.Log(colours.Value);
-            localColours = colours.Value.ToString();
-            //Debug.Log(localColours);
-            coloursList = new List<int>();
-            string[] tmpColours = localColours.Split('|');
-            for (int i = 0; i < tmpColours.Length; i++)
+            if (localColours != colours.Value.ToString())
             {
-                //Debug.Log(tmpColours[i]);
-                coloursList.Add(int.Parse(tmpColours[i]));
+                //Debug.Log(colours.Value);
+                localColours = colours.Value.ToString();
+                //Debug.Log(localColours);
+                coloursList = new List<int>();
+                string[] tmpColours = localColours.Split('|');
+                for (int i = 0; i < tmpColours.Length; i++)
+                {
+                    //Debug.Log(tmpColours[i]);
+                    coloursList.Add(int.Parse(tmpColours[i]));
+                }
             }
         }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                colourSelection.SetActive(!colourSelection.activeSelf);
+            }
+        }
+
     }
 
     public void NewList()

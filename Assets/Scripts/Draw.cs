@@ -55,14 +55,13 @@ public class Draw : NetworkBehaviour
             }
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
             GameManager.instance.drawList.Add(this);
-            playerColour = drawingColours[selectedColour];
-            transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
-            if (IsOwner) GetInkImage().color = playerColour;
+            SetColourSprites(drawingColours[selectedColour]);
             //playerColour = GameManager.instance.drawingColours[selectedColour];
             //SetColour_Rpc(playerColour, OwnerClientId);
         }
         else StartCoroutine(SetColour());
         if (!freeDrawActive) inkCounter = GetInkText();
+        if (IsOwner) GameManager.instance.localDraw = this;
 
 
     }
@@ -79,11 +78,23 @@ public class Draw : NetworkBehaviour
             yield return null;
         }
         selectedColour = GameManager.instance.coloursList[id - 1];
-        playerColour = drawingColours[selectedColour];
-        transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(playerColour);
-        if (IsOwner)
+        SetColourSprites(drawingColours[selectedColour]);
+    }
+
+    public void SetColourSprites(Color inputColour)
+    {
+        playerColour = inputColour;
+        if (IsOwner) GetInkImage().color = playerColour;
+        SetColourSpritesEveryone_Rpc(GetComponent<NetworkObject>().NetworkObjectId, inputColour);
+
+    }
+
+    [Rpc(SendTo.Everyone, RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
+    public void SetColourSpritesEveryone_Rpc(ulong playerId, Color inputColour)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
         {
-            GetInkImage().color = playerColour;
+            transform.GetChild(0).GetComponent<MouseControl>().SetMouseColour(inputColour);
         }
     }
 
