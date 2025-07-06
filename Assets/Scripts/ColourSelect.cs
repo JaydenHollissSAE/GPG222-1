@@ -40,6 +40,7 @@ public class ColourSelect : MonoBehaviour
 
     public void SetNewColour(int index)
     {
+        if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
         GameManager.instance.localDraw.SetColourSprites(GameManager.instance.drawingColours[index]);
     }
 

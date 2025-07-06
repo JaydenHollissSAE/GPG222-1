@@ -23,7 +23,7 @@ public class JoinDetection : NetworkBehaviour
         if (IsServer)
         {
 
-            Debug.Log(playersOld.Length);
+            //Debug.Log(playersOld.Length);
             Draw[] players = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
             if (playersOld.Length == 0 || playersOld.Length > players.Length) playersOld = players;
 

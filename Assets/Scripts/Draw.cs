@@ -89,7 +89,7 @@ public class Draw : NetworkBehaviour
 
     }
 
-    [Rpc(SendTo.Everyone, RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
+    [Rpc(SendTo.Everyone, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
     public void SetColourSpritesEveryone_Rpc(ulong playerId, Color inputColour)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
@@ -157,7 +157,7 @@ public class Draw : NetworkBehaviour
             {
                 ToServerSetup();
             }
-            else if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse1))
+            else if (freeDrawActive && (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse1)))
             {
                 Erase();
             }
@@ -239,7 +239,7 @@ public class Draw : NetworkBehaviour
         RaycastHit hitData_for_the_ray;
         if (Physics.Raycast(ray, out hitData_for_the_ray))
         {
-            Debug.Log(hitData_for_the_ray);
+            //Debug.Log(hitData_for_the_ray);
             GameObject theGameObjectHitByRay = hitData_for_the_ray.collider.gameObject;
             if (theGameObjectHitByRay.tag == "Drawing")
             {
