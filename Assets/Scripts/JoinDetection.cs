@@ -26,19 +26,25 @@ public class JoinDetection : NetworkBehaviour
             if (players.Count < draws.Length)
             {
                 players = GameManager.instance.drawList;
-                foreach (NetworkObject networkObject in GameObject.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+                //foreach (NetworkObject networkObject in GameObject.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+                foreach (LineRenderer networkObject in GameObject.FindObjectsByType<LineRenderer>(FindObjectsSortMode.None))
                 {
                     try
                     {
-                        networkObject.Spawn();
+                        networkObject.GetComponent<NetworkObject>().Spawn();
                     }
                     finally
                     {
-                        LineRenderer lineRenderer = networkObject.GetComponent<LineRenderer>();
-                        if (lineRenderer != null)
+                        try
                         {
-                            SetDrawData_Rpc(networkObject.NetworkObjectId, lineRenderer.GetPosition(1), lineRenderer.GetPosition(0), lineRenderer.startColor, lineRenderer.widthMultiplier);
+                            LineRenderer lineRenderer = networkObject.GetComponent<LineRenderer>();
+                            if (lineRenderer != null)
+                            {
+                                SetDrawData_Rpc(networkObject.GetComponent<NetworkObject>().NetworkObjectId, lineRenderer.GetPosition(1), lineRenderer.GetPosition(0), lineRenderer.startColor, lineRenderer.widthMultiplier);
+                            }
                         }
+                        finally { }
+
                     }
 
                     
