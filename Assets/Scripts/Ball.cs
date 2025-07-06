@@ -100,8 +100,8 @@ public class Ball : NetworkBehaviour
     {
         List<Draw> players = GameManager.instance.drawList;
         int index = GameManager.instance.coloursList.IndexOf(colourIndex);
-        GameManager.instance.drawList.RemoveAt(index);
         players[index].GetComponent<NetworkObject>().Despawn();
+        GameManager.instance.drawList.RemoveAt(index);
         GameManager.instance.coloursList.RemoveAt(index);
         GameManager.instance.NewList();
         transform.position = Vector2.zero;
