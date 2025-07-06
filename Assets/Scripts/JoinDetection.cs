@@ -23,7 +23,7 @@ public class JoinDetection : NetworkBehaviour
             //players = GameManager.instance.drawList;
             Draw[] draws = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
               
-            if (players.Count < draws.Length)
+            if (players.Count > draws.Length)
             {
                 players = GameManager.instance.drawList;
                 //foreach (NetworkObject networkObject in GameObject.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
