@@ -7,25 +7,29 @@ using UnityEngine;
 
 public class JoinDetection : NetworkBehaviour
 {
-    private List<Draw> players = new List<Draw>();
+    private Draw[] playersOld;
 
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
         base.OnNetworkSpawn();
-        
+        playersOld = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
+
+
     }
 
     void Update()
     {
         if (IsServer)
         {
-            //players = GameManager.instance.drawList;
-            Draw[] draws = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
-              
-            if (players.Count > draws.Length)
+
+            Debug.Log(playersOld.Length);
+            Draw[] players = GameObject.FindObjectsByType<Draw>(FindObjectsSortMode.None);
+            if (playersOld.Length == 0 || playersOld.Length > players.Length) playersOld = players;
+
+            if (playersOld.Length < players.Length)
             {
-                players = GameManager.instance.drawList;
+                playersOld = players;
                 //foreach (NetworkObject networkObject in GameObject.FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
                 foreach (LineRenderer networkObject in GameObject.FindObjectsByType<LineRenderer>(FindObjectsSortMode.None))
                 {
@@ -47,9 +51,11 @@ public class JoinDetection : NetworkBehaviour
 
                     }
 
-                    
+
                 }
             }
+            
+
         }
     }
 

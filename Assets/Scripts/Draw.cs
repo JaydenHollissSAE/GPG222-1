@@ -31,6 +31,7 @@ public class Draw : NetworkBehaviour
     public int prevColour = 0;
     public int selectedColour;
     private TextMeshProUGUI inkCounter;
+    private bool freeDrawActive = false;
 
     Vector2 lastPos;
 
@@ -41,6 +42,7 @@ public class Draw : NetworkBehaviour
         drawingColours = GameManager.instance.drawingColours;
         maxInk = GameManager.instance.maxInk;
         currentInk = GameManager.instance.maxInk;
+        freeDrawActive = GameManager.instance.freeDrawActive;
         m_camera = Camera.main;
 
         if (IsServer)
@@ -60,7 +62,7 @@ public class Draw : NetworkBehaviour
             //SetColour_Rpc(playerColour, OwnerClientId);
         }
         else StartCoroutine(SetColour());
-        inkCounter = GetInkText();
+        if (!freeDrawActive) inkCounter = GetInkText();
 
 
     }
@@ -109,23 +111,32 @@ public class Draw : NetworkBehaviour
 
     private void UpdateInkCounter()
     {
-        if (inkCounter == null) inkCounter = GetInkText();
-        if (currentInk < 0) currentInk = 0;
-        inkCounter.text = Mathf.FloorToInt(currentInk).ToString();
+        if (!freeDrawActive)
+        {
+            if (inkCounter == null) inkCounter = GetInkText();
+            if (currentInk < 0) currentInk = 0;
+            inkCounter.text = Mathf.FloorToInt(currentInk).ToString();
+        }
+
     }
 
 
     private void Update()
-    {
+    {   
+        if (freeDrawActive)
+        {
+            currentInk = maxInk;
+        }
         if (IsClient && IsLocalPlayer)
         {
             Drawing();
         }
+
     }
 
     void Drawing()
     {
-        if (currentInk > 0)
+        if (currentInk > 0 || freeDrawActive)
         {
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
@@ -134,6 +145,10 @@ public class Draw : NetworkBehaviour
             else if (Input.GetKey(KeyCode.Mouse0))
             {
                 ToServerSetup();
+            }
+            else if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse1))
+            {
+                Erase();
             }
         }
         if (currentInk < maxInk)
@@ -206,4 +221,39 @@ public class Draw : NetworkBehaviour
 
 
     }
+
+    void Erase()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(GetControl());
+        RaycastHit hitData_for_the_ray;
+        if (Physics.Raycast(ray, out hitData_for_the_ray))
+        {
+            Debug.Log(hitData_for_the_ray);
+            GameObject theGameObjectHitByRay = hitData_for_the_ray.collider.gameObject;
+            if (theGameObjectHitByRay.tag == "Drawing")
+            {
+                NetworkObject netObj = theGameObjectHitByRay.GetComponent<NetworkObject>();
+                if (netObj != null)
+                {
+                    //netObj.Despawn();
+                    ServerErace_Rpc(netObj.NetworkObjectId);
+                }
+            }
+            //Destroy(theGameObjectHitByRay);
+        }
+
+    }
+
+
+    [Rpc(SendTo.Server, RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
+    void ServerErace_Rpc(ulong playerId)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
+        {
+            netObj.Despawn();
+        }
+    }
+
+
+
 }

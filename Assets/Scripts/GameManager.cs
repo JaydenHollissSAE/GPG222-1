@@ -14,6 +14,7 @@ public class GameManager : NetworkBehaviour
     public List<int> coloursList;
     public List<Color> drawingColours = new List<Color>();
     public static GameManager instance;
+    public bool freeDrawActive = false;
 
     public float maxInk = 100f;
 
