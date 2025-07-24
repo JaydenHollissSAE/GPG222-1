@@ -32,7 +32,7 @@ public class GameManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         //if (networkInstance == null) networkInstance.Value = this;
-        if (instance = null) instance = this;
+        if (instance == null) instance = this;
         if (colours == null)
         {
             colours = new NetworkVariable<FixedString128Bytes>();
