@@ -8,6 +8,7 @@ using System;
 using Unity.Collections;
 using TMPro;
 using UnityEngine.UI;
+using UnityEditor.Build;
 
 
 public class Draw : NetworkBehaviour
@@ -32,12 +33,18 @@ public class Draw : NetworkBehaviour
     public int selectedColour;
     private TextMeshProUGUI inkCounter;
     private bool freeDrawActive = false;
+    private Color desiredColour = Color.white;
 
     Vector2 lastPos;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        StartFunction();
+    }
+
+    public void StartFunction()
+    {
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
         drawingColours = GameManager.instance.drawingColours;
         maxInk = GameManager.instance.maxInk;
@@ -47,11 +54,21 @@ public class Draw : NetworkBehaviour
 
         if (IsServer)
         {
-            
+
+            bool checkDesired = true;
             while (true)
             {
-                selectedColour = UnityEngine.Random.Range(0, GameManager.instance.drawingColours.Count);
+                if (checkDesired && desiredColour != Color.white && GameManager.instance.drawingColours.Contains(desiredColour))
+                {
+                    selectedColour = GameManager.instance.drawingColours.IndexOf(desiredColour);
+                }
+                else
+                {
+                    selectedColour = UnityEngine.Random.Range(0, GameManager.instance.drawingColours.Count);
+                }
+
                 if (!GameManager.instance.colours.Value.ToString().Contains(selectedColour.ToString() + "|") && !GameManager.instance.colours.Value.ToString().Contains("|" + selectedColour.ToString() + "|")) break;
+                checkDesired = false;
             }
             GameManager.instance.colours.Value = GameManager.instance.colours.Value + selectedColour.ToString() + "|";
             GameManager.instance.drawList.Add(this);
@@ -62,8 +79,6 @@ public class Draw : NetworkBehaviour
         else StartCoroutine(SetColour());
         if (!freeDrawActive) inkCounter = GetInkText();
         if (IsOwner) GameManager.instance.localDraw = this;
-
-
     }
 
 
