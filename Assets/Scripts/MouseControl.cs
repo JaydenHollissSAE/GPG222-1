@@ -9,6 +9,7 @@ public class MouseControl : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        //Networked to ensure it doesn't trigger before spawning the player or in menus
         base.OnNetworkSpawn();
         Cursor.visible = false;
         m_camera = Camera.main;
