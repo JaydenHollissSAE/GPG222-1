@@ -3,12 +3,9 @@ using UnityEngine.SceneManagement;
 
 public class LobbyButtons : MonoBehaviour
 {
-    public void JoinPong()
+    public void JoinGameMode(string modeName)
     {
-        SceneManager.LoadScene("Pong");
+        SceneManager.LoadScene(modeName);
     }
-    public void JoinFreeDraw()
-    {
-        SceneManager.LoadScene("FreeDraw");
-    }
+
 }
