@@ -16,6 +16,7 @@ public class GameManager : NetworkBehaviour
     public List<Color> drawingColours = new List<Color>();
     public static GameManager instance;
     public bool freeDrawActive = false;
+    public bool endlessActive = false;
     [SerializeField] GameObject colourSelection;
 
     public float maxInk = 100f;
