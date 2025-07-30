@@ -43,6 +43,7 @@ public class RelayServerManagement : MonoBehaviour
             joinRoomSettingsUI.SetActive(false);
             createRoomSettingsUI.SetActive(false);
             relayUI.SetActive(!relayUI.activeSelf);
+            Cursor.visible = !relayUI.activeSelf;
         }
     }
 
@@ -57,6 +58,7 @@ public class RelayServerManagement : MonoBehaviour
         relayUI.SetActive(false);
         joinRoomSettingsUI.SetActive(false);
         createRoomSettingsUI.SetActive(false);
+        Cursor.visible = false;
     }
 
     public void CreateRoomUI()
