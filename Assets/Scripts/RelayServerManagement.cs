@@ -42,8 +42,8 @@ public class RelayServerManagement : MonoBehaviour
             Debug.Log("~ pressed");
             joinRoomSettingsUI.SetActive(false);
             createRoomSettingsUI.SetActive(false);
-            relayUI.SetActive(!relayUI.activeSelf);
             Cursor.visible = !relayUI.activeSelf;
+            relayUI.SetActive(!relayUI.activeSelf);
         }
     }
 
