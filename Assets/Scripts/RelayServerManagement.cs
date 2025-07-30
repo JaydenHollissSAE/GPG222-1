@@ -72,6 +72,7 @@ public class RelayServerManagement : MonoBehaviour
 
     public async void CreateRoom()
     {
+        await PurgeRoom();
         int count = 60;
         try
         {
@@ -89,11 +90,26 @@ public class RelayServerManagement : MonoBehaviour
 
     public async void JoinRoom()
     {
+        await PurgeRoom();
         bool status = await StartClientWithRelay(joinCode.text);
         Debug.Log(status);
         if (status) CloseMenu();
     }
 
+
+    private async Task PurgeRoom()
+    {
+        try
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsClient)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+
+        }
+        finally { }
+        return;
+    }
 
 
 
@@ -101,7 +117,6 @@ public class RelayServerManagement : MonoBehaviour
     {
         try
         {
-            // Create a relay allocation for up to 4 players
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
