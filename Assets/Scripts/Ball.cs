@@ -120,6 +120,7 @@ public class Ball : NetworkBehaviour
         }
         else
         {
+            transform.position = Vector2.zero;
             StartCoroutine(AwaitedChange(true));
         }
 

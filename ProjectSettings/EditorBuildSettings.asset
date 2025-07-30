@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FreeDraw.unity
     guid: dae4c3c982988864c87f373b51996234
+  - enabled: 1
+    path: Assets/Scenes/EndlessPong.unity
+    guid: 29b7886211d78c641b4df594e8694450
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
