@@ -23,6 +23,7 @@ public class ServerManagement : MonoBehaviour
     [SerializeField] private GameObject joinRoomSettingsUI;
     [SerializeField] private TMP_InputField userCount;
     [SerializeField] private TMP_InputField joinCode;
+    [SerializeField] private TextMeshProUGUI joinCodeDisplay;
     private string lobbyId;
     ConcurrentQueue<string> createdLobbyIds = new ConcurrentQueue<string>();
 
@@ -105,10 +106,30 @@ public class ServerManagement : MonoBehaviour
 
     public async void JoinRoom()
     {
-        await PurgeRoom();
-        bool status = await StartClientWithRelay(joinCode.text);
-        Debug.Log(status);
-        if (status) CloseMenu();
+        
+        try
+        {
+            await PurgeRoom();
+        }
+        finally
+        {
+            try
+            {
+                Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(joinCode.text);
+                string relayJoinCode = joinedLobby.Data["JoinCode"].Value;
+                await StartClientWithRelay(relayJoinCode);
+                joinCodeDisplay.text = "Join Code: " + joinCode.text;
+                CloseMenu();
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
+
+        //bool status = await StartClientWithRelay(joinCode.text);
+        //Debug.Log(status);
+        //if (status) 
     }
 
 
@@ -138,7 +159,7 @@ public class ServerManagement : MonoBehaviour
                 transport.DisconnectLocalClient();
             }
             finally { }
-
+            joinCodeDisplay.text = "Join Code: ";
         }
         
         return;
@@ -224,6 +245,7 @@ public class ServerManagement : MonoBehaviour
         // Heartbeat the lobby every 15 seconds.
         await StartHostWithRelay(allocation);
         lobbyId = lobby.Id;
+        joinCodeDisplay.text = "Join Code: "+ lobby.LobbyCode;
         createdLobbyIds.Enqueue(lobby.Id);
         StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
         return lobby;
