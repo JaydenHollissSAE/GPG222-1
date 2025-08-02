@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ColourSelect : MonoBehaviour
 {
     private List<Image> colourButtons = new List<Image>();
+    private bool start = true;
     void Start()
     {
         int children = transform.childCount;
@@ -34,7 +35,8 @@ public class ColourSelect : MonoBehaviour
 
     private void OnDisable()
     {
-        Cursor.visible = false;
+        if (!start) Cursor.visible = false;
+        else start = true;
     }
 
 

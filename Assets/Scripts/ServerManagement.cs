@@ -29,20 +29,31 @@ public class ServerManagement : MonoBehaviour
 
     private async void Start()
     {   
-        // Initialize Unity Services
-        await UnityServices.InitializeAsync();
-
-        AuthenticationService.Instance.SignedIn += () =>
+        try
         {
-            Debug.Log("Signed In As " + AuthenticationService.Instance.PlayerId);
-        };
+            // Initialize Unity Services
+            await UnityServices.InitializeAsync();
 
-        // Sign in anonymously
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            AuthenticationService.Instance.SignedIn += () =>
+            {
+                Debug.Log("Signed In As " + AuthenticationService.Instance.PlayerId);
+            };
 
+            // Sign in anonymously
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        }
+
+        finally 
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsClient) CloseMenu();
+        }
 
 
     }
+
+
+
+
 
 
     private void Update()

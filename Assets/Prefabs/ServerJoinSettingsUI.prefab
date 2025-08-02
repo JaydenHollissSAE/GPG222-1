@@ -894,6 +894,7 @@ MonoBehaviour:
   joinRoomSettingsUI: {fileID: 5289464966394132085}
   userCount: {fileID: 7158017288572479238}
   joinCode: {fileID: 6949257871654070106}
+  joinCodeDisplay: {fileID: 452998098401287079}
 --- !u!1 &4715829215217633796
 GameObject:
   m_ObjectHideFlags: 0
