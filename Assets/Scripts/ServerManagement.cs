@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class RelayServerManagement : MonoBehaviour
+public class ServerManagement : MonoBehaviour
 {
     [SerializeField] private GameObject relayUI;
     [SerializeField] private GameObject createRoomSettingsUI;

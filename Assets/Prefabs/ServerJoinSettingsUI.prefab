@@ -122,7 +122,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8656391015972766757}
-        m_TargetAssemblyTypeName: RelayServerManagement, Assembly-CSharp
+        m_TargetAssemblyTypeName: ServerManagement, Assembly-CSharp
         m_MethodName: JoinRoomUI
         m_Mode: 1
         m_Arguments:
@@ -879,7 +879,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8656391015972766757}
-        m_TargetAssemblyTypeName: RelayServerManagement, Assembly-CSharp
+        m_TargetAssemblyTypeName: ServerManagement, Assembly-CSharp
         m_MethodName: MenuBack
         m_Mode: 1
         m_Arguments:
@@ -1012,7 +1012,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8656391015972766757}
-        m_TargetAssemblyTypeName: RelayServerManagement, Assembly-CSharp
+        m_TargetAssemblyTypeName: ServerManagement, Assembly-CSharp
         m_MethodName: CreateRoom
         m_Mode: 1
         m_Arguments:
@@ -1612,7 +1612,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8656391015972766757}
-        m_TargetAssemblyTypeName: RelayServerManagement, Assembly-CSharp
+        m_TargetAssemblyTypeName: ServerManagement, Assembly-CSharp
         m_MethodName: CreateRoomUI
         m_Mode: 1
         m_Arguments:
@@ -2077,7 +2077,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8656391015972766757}
-        m_TargetAssemblyTypeName: RelayServerManagement, Assembly-CSharp
+        m_TargetAssemblyTypeName: ServerManagement, Assembly-CSharp
         m_MethodName: MenuBack
         m_Mode: 1
         m_Arguments:
@@ -2576,7 +2576,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8656391015972766757}
-        m_TargetAssemblyTypeName: RelayServerManagement, Assembly-CSharp
+        m_TargetAssemblyTypeName: ServerManagement, Assembly-CSharp
         m_MethodName: JoinRoom
         m_Mode: 1
         m_Arguments:
