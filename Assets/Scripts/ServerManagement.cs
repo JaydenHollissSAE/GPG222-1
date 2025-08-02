@@ -13,6 +13,8 @@ using Unity.Services.Lobbies;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Networking.Transport.Relay;
+using System.Collections.Concurrent;
+using System.Linq;
 
 public class ServerManagement : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class ServerManagement : MonoBehaviour
     [SerializeField] private GameObject joinRoomSettingsUI;
     [SerializeField] private TMP_InputField userCount;
     [SerializeField] private TMP_InputField joinCode;
+    private string lobbyId;
+    ConcurrentQueue<string> createdLobbyIds = new ConcurrentQueue<string>();
 
     private async void Start()
     {   
@@ -110,17 +114,33 @@ public class ServerManagement : MonoBehaviour
 
     private async Task PurgeRoom()
     {
-        try
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsClient)
         {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsClient)
+            try
+            {
+                string playerId = AuthenticationService.Instance.PlayerId;
+                await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
+            }
+            finally { }
+            try
+            {
+                RemoveLobby();
+            }
+            finally { }
+            try
             {
                 NetworkManager.Singleton.Shutdown();
+            }
+            finally { }
+            try
+            {
                 UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
                 transport.DisconnectLocalClient();
             }
+            finally { }
 
         }
-        finally { }
+        
         return;
     }
 
@@ -203,17 +223,33 @@ public class ServerManagement : MonoBehaviour
 
         // Heartbeat the lobby every 15 seconds.
         await StartHostWithRelay(allocation);
+        lobbyId = lobby.Id;
+        createdLobbyIds.Enqueue(lobby.Id);
         StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
         return lobby;
     }
 
-    IEnumerator HeartbeatLobbyCoroutine(string lobbyId, float waitTimeSeconds)
+    IEnumerator HeartbeatLobbyCoroutine(string lobbyIdIn, float waitTimeSeconds)
     {
         while (true)
         {
-            LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
+            LobbyService.Instance.SendHeartbeatPingAsync(lobbyIdIn);
             yield return new WaitForSecondsRealtime(waitTimeSeconds);
         }
+    }
+
+
+    void RemoveLobby()
+    {
+        while (createdLobbyIds.TryDequeue(out var lobbyIdOut))
+        {
+            LobbyService.Instance.DeleteLobbyAsync(lobbyIdOut);
+        }
+        return;
+    }
+    void OnApplicationQuit()
+    {
+        RemoveLobby();
     }
 
 
