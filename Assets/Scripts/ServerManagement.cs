@@ -8,6 +8,11 @@ using Unity.Services.Relay;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Services.Lobbies.Models;
+using Unity.Services.Lobbies;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Networking.Transport.Relay;
 
 public class ServerManagement : MonoBehaviour
 {
@@ -83,9 +88,13 @@ public class ServerManagement : MonoBehaviour
         finally
         {
             if (count > 60) count = 60;
-            bool status = await StartHostWithRelay(count);
-            Debug.Log(status);
-            if (status) CloseMenu();
+            try
+            {
+                await CreateLobby("Lobby", count);
+                CloseMenu();
+            }
+            finally { }
+
         }
 
     }
@@ -117,11 +126,11 @@ public class ServerManagement : MonoBehaviour
 
 
 
-    public async Task<bool> StartHostWithRelay(int maxConnections)
+    public async Task<bool> StartHostWithRelay(Allocation allocation)
     {
         try
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
+            //Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnections);
 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             Debug.Log("Join Code: " + joinCode);
@@ -165,6 +174,48 @@ public class ServerManagement : MonoBehaviour
             return false;
         }
     }
+
+
+    async Task<Lobby> CreateLobby(string lobbyName="Lobby", int maxPlayers=60, bool isPrivate=false)
+    {
+
+        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
+        CreateLobbyOptions options = new CreateLobbyOptions();
+        options.IsPrivate = isPrivate;
+
+        string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+
+        options.Data = new Dictionary<string, DataObject>
+            {
+                {
+                    "JoinCode",
+                    new DataObject(
+                        DataObject.VisibilityOptions.Member, // only players in the lobby can see this key
+                        joinCode                             // the actual relay join code for this lobby
+                    )
+                }
+            };
+
+
+        // Lobby parameters code goes here...
+        // See 'Creating a Lobby' for example parameters
+        var lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
+
+        // Heartbeat the lobby every 15 seconds.
+        await StartHostWithRelay(allocation);
+        StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
+        return lobby;
+    }
+
+    IEnumerator HeartbeatLobbyCoroutine(string lobbyId, float waitTimeSeconds)
+    {
+        while (true)
+        {
+            LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
+            yield return new WaitForSecondsRealtime(waitTimeSeconds);
+        }
+    }
+
 
 
 }
