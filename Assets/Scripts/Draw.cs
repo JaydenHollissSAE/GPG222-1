@@ -29,6 +29,7 @@ public class Draw : NetworkBehaviour
     private TextMeshProUGUI inkCounter;
     private bool freeDrawActive = false;
     private Color desiredColour = Color.white;
+    public static Draw localInstance;
 
     Vector2 lastPos;
 
@@ -40,6 +41,7 @@ public class Draw : NetworkBehaviour
 
     public void StartFunction()
     {
+        if (IsOwner && IsLocalPlayer) localInstance = this;
         if (GameManager.instance == null) GameManager.instance = FindFirstObjectByType<GameManager>();
         drawingColours = GameManager.instance.drawingColours;
         maxInk = GameManager.instance.maxInk;
@@ -97,6 +99,21 @@ public class Draw : NetworkBehaviour
         if (IsOwner) GetInkImage().color = playerColour;
         SetColourSpritesEveryone_Rpc(GetComponent<NetworkObject>().NetworkObjectId, inputColour);
 
+    }
+
+    public void DestroyMe()
+    {
+        DespawnMe_Rpc(Draw.localInstance.GetComponent<NetworkObject>().NetworkObjectId);
+    }
+
+
+    [Rpc(SendTo.Server, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]
+    public void DespawnMe_Rpc(ulong playerId)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject netObj))
+        {
+            netObj.Despawn(true);
+        }
     }
 
     [Rpc(SendTo.Everyone, RequireOwnership = false, Delivery = RpcDelivery.Reliable)]

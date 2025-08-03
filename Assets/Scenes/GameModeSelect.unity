@@ -130,8 +130,8 @@ GameObject:
   - component: {fileID: 453894185}
   - component: {fileID: 453894184}
   - component: {fileID: 453894183}
-  - component: {fileID: 453894182}
   - component: {fileID: 453894181}
+  - component: {fileID: 453894182}
   - component: {fileID: 453894186}
   m_Layer: 0
   m_Name: NetworkManager

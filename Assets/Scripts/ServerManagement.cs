@@ -154,6 +154,11 @@ public class ServerManagement : MonoBehaviour
         {
             try
             {
+                Draw.localInstance.DestroyMe();
+            }
+            finally { }
+            try
+            {
                 string playerId = AuthenticationService.Instance.PlayerId;
                 await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
             }
