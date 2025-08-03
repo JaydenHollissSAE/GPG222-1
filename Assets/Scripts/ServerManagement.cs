@@ -144,7 +144,13 @@ public class ServerManagement : MonoBehaviour
     }
 
 
-    private async Task PurgeRoom()
+    public void PurgeRoomUI()
+    {
+        PurgeRoom();
+    }
+
+
+    public async Task PurgeRoom()
     {
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsClient)
         {
