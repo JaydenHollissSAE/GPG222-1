@@ -1,8 +1,4 @@
-using NUnit.Framework;
-using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Netcode.Components;
-using Unity.Netcode.Editor;
 using UnityEngine;
 
 public class JoinDetection : NetworkBehaviour

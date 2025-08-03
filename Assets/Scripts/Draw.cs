@@ -1,14 +1,9 @@
 using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 using UnityEngine;
 using Unity.Netcode;
-using UnityEditor.Tilemaps;
 using System.Collections;
-using System;
-using Unity.Collections;
 using TMPro;
 using UnityEngine.UI;
-using UnityEditor.Build;
 
 
 public class Draw : NetworkBehaviour
