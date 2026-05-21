@@ -28,7 +28,9 @@ public class MouseControl : NetworkBehaviour
         if ((IsLocalPlayer))
         {
             if (m_camera == null) m_camera = Camera.main;
-            Vector2 mousePos = m_camera.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 mousePos;
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer) mousePos = m_camera.ScreenToWorldPoint(Input.GetTouch(0).position);
+            else mousePos = m_camera.ScreenToWorldPoint(Input.mousePosition);
             transform.position = mousePos;
         }
 

@@ -16,6 +16,7 @@ public class Draw : NetworkBehaviour
     private GameObject activeDrawingGroup;
     public Color playerColour = Color.white;
     private float inkMultiplier = 50f;
+    private bool touching = false;
 
 
     public float currentInk;
@@ -129,8 +130,8 @@ public class Draw : NetworkBehaviour
 
     Image GetInkImage()
     {
-        foreach (var item in FindObjectsByType<Image>(FindObjectsSortMode.None)) 
-        { 
+        foreach (var item in FindObjectsByType<Image>(FindObjectsSortMode.None))
+        {
             if (item.gameObject.tag == "InkCount") return item;
         }
         return FindFirstObjectByType<Image>();
@@ -160,7 +161,7 @@ public class Draw : NetworkBehaviour
 
 
     private void Update()
-    {   
+    {
         if (freeDrawActive)
         {
             currentInk = maxInk;
@@ -176,18 +177,39 @@ public class Draw : NetworkBehaviour
     {
         if (currentInk > 0 || freeDrawActive)
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
             {
-                ToServerSetup(true);
+                if (Input.touchCount == 1 && !touching)
+                {
+                    ToServerSetup(true);
+                }
+                else if (Input.touchCount == 1 && touching)
+                {
+                    ToServerSetup();
+                }
+                else if (freeDrawActive && (Input.touchCount == 2))
+                {
+                    Erase();
+                }
             }
-            else if (Input.GetKey(KeyCode.Mouse0))
+            else
             {
-                ToServerSetup();
+                if (Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    ToServerSetup(true);
+                }
+                else if (Input.GetKey(KeyCode.Mouse0))
+                {
+                    ToServerSetup();
+                }
+                else if (freeDrawActive && (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse1)))
+                {
+                    Erase();
+                }
             }
-            else if (freeDrawActive && (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse1)))
-            {
-                Erase();
-            }
+
+
         }
         if (currentInk < maxInk)
         {
@@ -204,7 +226,8 @@ public class Draw : NetworkBehaviour
 
     Vector3 GetControl()
     {
-        return Input.mousePosition;
+        if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer) return Input.GetTouch(0).position;
+        else return Input.mousePosition;
     }
 
 
